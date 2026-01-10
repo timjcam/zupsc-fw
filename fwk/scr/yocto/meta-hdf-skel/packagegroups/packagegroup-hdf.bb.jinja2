@@ -1,0 +1,13 @@
+{# This is a BitBake recipe template to be populated with "make yocto_hdf" #}
+# This packagegroup includes all HDF packages used by the project
+
+DESCRIPTION = "HDF files for {{ projname }}"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+inherit packagegroup
+
+RDEPENDS:${PN} = " \
+{%- for recipe in recipes %}
+    {{ recipe }} \
+{%- endfor %}
+"

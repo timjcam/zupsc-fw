@@ -1,0 +1,18 @@
+extends: default
+table:
+  head:
+    background-color: 235f8cff
+    font-color: ddddddff
+footer:
+  recto:
+    center:
+      font-color: 999999
+      content: '{projectname} - {projectconf} - {projectversion}'
+    right:
+      content: '{page-number}'
+  verso:
+    center:
+      font-color: 999999
+      content: '{projectname} - {projectconf} - {projectversion}'
+    left:
+      content: '{page-number}'

@@ -1,0 +1,33 @@
+{%- from 'hdf_recipe_macros.jinja2' import recipe, xsafile, mapfiles, headers with context -%}
+
+{#
+    This is a BitBake recipe template to be populated with "make yocto_hdf"
+    Enter the HDF file pattern below (can be a glob expression);
+    the project's "out" directory will be recursively globbed for that file
+#}
+
+{%- set hdf = get_hdf("hdfprojectname*.xsa") -%}
+
+{{ recipe(hdf) }}
+{{ xsafile(hdf) }}
+{{ mapfiles(hdf) }}
+{{ headers(hdf) }}
+
+# bbclass from meta-desy-util to load .bit.bin / .dtbo at u-boot stage
+inherit hdf_load_at_boot
+
+# bbclass from meta-desy-fwk-bsp to create device tree nodes from block diagram
+inherit dt_from_bd_fwk
+
+# Uncomment to include custom devicetree code for the .dtbo overlay:
+#
+# FILESEXTRAPATHS:prepend := "${THISDIR}:"
+#
+# SRC_URI:append = "        \
+#     file://pl-custom.dtsi \
+# "
+#
+# do_configure:append() {
+#     cp ${WORKDIR}/*.dtsi ${XSCTH_WS}/${XSCTH_DT_PATH}/
+# }
+

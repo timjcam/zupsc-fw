@@ -1,0 +1,493 @@
+= Changelog
+
+FPGA Firmware Framework FWK changelog generated based on conventional commit messages.
+
+== Unreleased (2023-07-18)
+
+
+=== New Features
+
+* User systemRDL library dirs
+* (libero): Support for Libero by Microchip
+* 'make sdk' to open Vivado SDK
+
+=== Fixes
+
+* (vivado): Fallback for versions without 'write_hw_platform'
+* (vivado): fix filetype pattern
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.11.0\...a85e85e[`0.11.0...a85e85e`]
+
+== 0.11.0 (2023-07-07)
+
+
+=== New Features
+
+* (vivado): add option to run vivado tcl shell
+* if exists, in Makefile include .local.env file from prj root
+* IP instantiation template based wrapper generation
+* replace jinja2-cli with a script to inject list arguments from command line
+* (addr): old II to SystemRDL memory datatype handling
+* (vitis_hls_ip): generate Vitis HLS IP and place in user repository
+* (vivado): add IP packaging of module
+* (Makefile): Add a rule to generate VHDL from MAP
+
+=== Fixes
+
+* (jinja2): get python exe path using bash, workaround v2022.2
+* typo in one of error return
+* (Jinja2): unset python vars before calling Jinja2
+* paths for jinja2-cli replacement, group procedures for ip utilities
+* (a8f80cf): one more correction to previous commit
+* (core): propagate change to all tools after hls_ip integration
+* (af2e324): copy probes file only if exists
+* (printRunResult): Change grep match for ERROR print
+* (modelsim): detect vhdl file with vhd type
+* replace slashes in branch name
+* (makefile): exit on error in make map
+* (addr): correct h file name for DesyRDL 1.0
+* (8267d80): check if module proc exist, do not run stubs procs
+
+=== Refactorings
+
+* (version): mark non CI and non main branch build in shasum
+* move vivado specific procedures into fwfwk_vivado
+
+=== Others
+
+* bump DesyRDL 1.1.0
+* (desyrdl): bump DesyRDL version - IBUS decoder
+* (desyrdl): bump DesyRDL version
+* (desyrdl): bump DesyRDL version
+* bump DesyRDL version
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.10.0\...0.11.0[`0.10.0...0.11.0`]
+
+== 0.10.0 (2023-03-30)
+
+
+=== New Features
+
+* desyrdl 1.0 integration : optional library per module
+* give Docker access to private Git repositories
+* (yocto): docker with X11 and default OE_TERMINAL=tmux settings
+* template engine added, check doc->template_engine.adoc
+* include desyrdl generated address space .h files in appguru projects
+* (yocto): option to disable DOCKER
+* YOCTO integration into FWK, uses docker fwfwk/yocto:<release>
+* add ::fwfwk::GuiMode True flag when in GUI
+
+=== Fixes
+
+* (src): use extension file as source type if not provided
+* (planahead): handle missing bit file on export
+* (desyrdl): fixes on file paths on desyrdl 1.0 integration
+* (addr): ibus to rdl relative address for external buses
+* (ghdl): include stop sim time
+* (modelsim): proper exit code on failure
+* fix cocotb addsrc by removing functionalities that collide with other options
+* do not use a source library if its name is the void string
+* (56d7244): correct paths
+* (yocto): export to conf only if variables are defined
+* (yocto): create shared dirs if do not exists
+* (yocto): docker check if run under CI, not interactive
+* (addr): always generate 32 bit wide SystemRDL memories
+* (hls): exit on error, add patch to version number, fixes v2020.2
+* (hls): tcl clean project delete only top hls folder
+* vitis_hls code clean-up
+* (yocto): remove tty flag from docker
+* (addr): ipx to rdl fix 2d regs, interface nad bit size
+* empty sources var go back to proper directory
+
+=== Refactorings
+
+* Vitis HLS integration changes after review
+
+=== Others
+
+* bump DesyRDL version
+* (yocto): correct previous fix
+* bump desyrdl to 0.3.0
+* (hls): remove commented code
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.9.3\...0.10.0[`0.9.3...0.10.0`]
+
+== 0.9.3 (2022-12-06)
+
+
+=== New Features
+
+* update DesyRDL with Regfile support
+* merged map file feature
+* fwfwk::reinit and fwfwk::addr::generate wrapper procedures
+
+=== Fixes
+
+* (planahead): handle already open project
+* (addr): use pow() function in expr instead of **
+* (addr): module address range from address if no range provided
+* (map): merged map proper index calculation, improve map sorting
+* (main): use top exit procedure
+* get the correct Git version for the project
+* (addr): take desyrdl files list separate for each channel
+* (doc): set proper 'doc' tool type when generating documentation
+
+=== Refactorings
+
+* (make): change virtual folder name to .venv, .fwk confuses
+
+=== Others
+
+* bump desyrdl
+* rebase 2a7dbbf on main
+* fix typo on build stage
+* remove debug print
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.9.2\...0.9.3[`0.9.2...0.9.3`]
+
+== 0.9.2 (2022-10-25)
+
+
+=== Fixes
+
+* FWK_HW_FILE glob chars: pick one latest version
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.9.1\...0.9.2[`0.9.1...0.9.2`]
+
+== 0.9.1 (2022-10-24)
+
+
+=== New Features
+
+* (ghdl): generate .ghw file by default
+* (vivado_sim): set sim top and sim time based on variables
+* (addr): optional names for ARRAY: INST or INSTANCE or TREE
+
+=== Fixes
+
+* (addr): IPX address type - pick only one xml file
+* add workaround to allow the execution of the 'psf2Edward' command by planahead
+* do not call tool if empty sources variable, print warning
+* (version): handle leading 0s in version tag number
+* (doc): use fwfwk/doc-asciidoctor docker name
+* (addr): create empty Config key, fix copy of config to new node
+* (osvvm): create ::fwfwk::lib namespace also in case no path osvvm
+* (versioning): proper regexp for shasum
+
+=== Performance improvements
+
+* (ghdl): remove deps from test, compiles only changed files
+
+=== Refactorings
+
+* (Makefile): change target install to env, more accurate
+
+=== Docs
+
+* document address space integration
+* remove apostrophe from Tcl plural
+* document Tcl procedures
+
+=== Others
+
+* (6ecc5c0): ghdl cmake generation needs more attention
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.9.0\...0.9.1[`0.9.0...0.9.1`]
+
+== 0.9.0 (2022-08-30)
+
+
+=== New Features
+
+* (lib): OSVVM integration over FWK_OSVVM_PATH variable
+* (ghdl): add extra options  over LIBS and FLGAS env variables
+* (addr): copy address .h files as artifacts to out, like .mapp
+* (addr): add IPX type of address space
+* module Config array ns as default configuratun variables
+* (cocotb): add cocotb tool
+* (addr): add NODE type address node
+* (addr): add checking address and range in addAddressSpace
+* (vivado): print Critical Warning if timing not met
+* (xise): check ISE version in project creation, handle error
+* add Xilinx appguru tool
+
+=== Fixes
+
+* (git): catch error on submodules status
+* (makefile): default target should be the first, prints help
+* (addr): set default addr range if not provided, update desyrdl
+* (addr): proper version format in Conf variables and conf update
+* (Makefile): specify tools type for shell only operations(map,rdl)
+* (addr): reduce hierarchy; fix INTERCONNECT addresses
+* ghdl now fails when an assertion of severity 'error' or 'failure' is thrown
+
+=== Others
+
+* temporary removed style-checker and simple-documenter from make install_dev
+* (vitis): inform if proper variables are not set
+* correct setSources phase log (SOURCESS -> SOURCES)
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.8.3\...0.9.0[`0.8.3...0.9.0`]
+
+== 0.8.3 (2022-07-19)
+
+
+=== Fixes
+
+* (version): decode version from tag with postfix e.g. 1.1.0-rc1
+* Addressing the AXI decoder of DESYRDL works now
+* Updated desyrdl with bug fix for AXI decoder addressing.
+
+=== Performance improvements
+
+* (log): improve add sources error messages
+
+=== Others
+
+* update DesyRDL
+* (vivado): print info about FWK_VIVADO_JOBS
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.8.2\...0.8.3[`0.8.2...0.8.3`]
+
+== 0.8.2 (2022-07-11)
+
+
+=== New Features
+
+* (version): include project version to module address space conf
+* (version): add to shasum version if CI and main branch
+
+=== Fixes
+
+* proper version regex and SHASUM number
+
+=== Refactorings
+
+* (vivado): Tcl src: pre.synth -> synth.pre, clean comments
+* (vivado): start GUI from Tcl instead of Makefile
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.8.1\...0.8.2[`0.8.1...0.8.2`]
+
+== 0.8.1 (2022-07-05)
+
+
+=== New Features
+
+* (ghdl): use VHDL 2008 standard for simulation
+* (addr): get list of DesyRDL files from .txt file
+
+=== Fixes
+
+* (modelsim): compile libraries in an order of being added
+* (xise): correct typo of library argument
+* (modelsim): proper catch if file does not exist
+
+=== Refactorings
+
+* (modelsim): compile list of sources in added order
+* (modelsim): use sorted list of sources
+* (ghdl): use sorted list of sources
+* (vivado): xci file change simulation files generation
+
+=== Others
+
+* (ghdl): use VHDL 2008 for synthesis as well
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.8.0\...0.8.1[`0.8.0...0.8.1`]
+
+== 0.8.0 (2022-05-18)
+
+
+=== New Features
+
+* (modelsim): modelsim and colorterm
+* color at terminal out, dedicated printInfo/error proc
+* (tool): modelsim support added
+* (tool): addGenIPSources proc added, gen vendor IPs from the list
+* sources list with properties per source item
+
+=== Fixes
+
+* handle non semantic tag version or different version format
+
+=== Refactorings
+
+* (vivado): improve xdc file adding
+
+=== Others
+
+* (ghdl): print ghdl stdout in ctest (-V arg)
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.7.1\...0.8.0[`0.7.1...0.8.0`]
+
+== 0.7.1 (2022-04-20)
+
+
+=== New Features
+
+* (vivado): print run error log, proper handling of OOC failure
+* automatically add C_VERSION constant to address space variable
+
+=== Fixes
+
+* (b4f93a6): proper hex number handling
+* call DesyRDL with empty PYTHON* env
+* do not add child to RDL generated from IBUS
+
+=== Others
+
+* (xsdk): add cleanProject procedure
+* (fwfwk): include doPostBuild .srec
+* (2dd13f5): correction to vivado run satuses
+* desyrdl bump
+* (ea74207): proper/improved ea74207 fix
+* "fix: do not add child to RDL generated from IBUS"
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.7.0\...0.7.1[`0.7.0...0.7.1`]
+
+== 0.7.0 (2022-02-16)
+
+
+=== New Features
+
+* (doc): generate registers adoc with desyrdl and add to doc
+* (addr): add h file generate using desyrdl
+* (doc): generate hrml documentation with antora
+* (doc): add documentation module to fwk, initial asciidoctor-pdf
+* (addr): use RDL bridge in root ch, allow addr overlap in top
+* (planahead): print synthesis report errors on console
+* (utils): color grep and file grep, print color text on console
+* (addr): .vh do not treat constants with D_ prefix as a string
+* support for std_logic_vector in parse VHDL config package
+
+=== Fixes
+
+* (addr): top address map with one address offset
+* (addr): escape brackets {} in string to rdl file
+* (addr): II to RDL, generate properly data type for register
+* (addr): sort using integers node dict and desyrdl file list
+* (addr): verilog header define - put strings in double quote
+
+=== Refactorings
+
+* (addr): disable adding properties to generated top rdl
+* (addr): generate .VH file instead of .SV from configuration
+
+=== Others
+
+* (e083c28): comment debug print
+* (a2b36db): add antora ui files
+* change submodule url to relative path for mirroring reasons
+* (3abde56): one missing escape char
+* (addr): remove trailing white space in .vh files
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.6.3\...0.7.0[`0.6.3...0.7.0`]
+
+== 0.6.3 (2022-01-28)
+
+
+=== New Features
+
+* (addr): include parameters in RDL top file from Config provided
+* (addr): add VII_EXTB type for IBUS address space, DesyRDL need
+* (core): add doPostBuild procedure, check if mod proc exist
+
+=== Fixes
+
+* (Makefile): ghdl remove addr switch,addr generation on doOnCreate
+* (planahead): catch launch_run error and exit
+* (addr): proper access channel check in propagation parent-child
+* (ghdl): print synth out to file, run setSim on ghdl crate
+* (main): proper exit flag handling
+* (addr): use fixed addresses in generated SystemRDL files
+
+=== Others
+
+* (deps): update DesyRDL
+* update DesyRDL to fix ISE build
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.6.2\...0.6.3[`0.6.2...0.6.3`]
+
+== 0.6.2 (2022-01-05)
+
+
+=== Fixes
+
+* (Makefile): export venv to bash in installation process
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.6.1\...0.6.2[`0.6.1...0.6.2`]
+
+== 0.6.1 (2022-01-04)
+
+
+=== New Features
+
+* (vivado): add env variables to set Jobs number and Host
+* (ghdl): export wave vcd file for each test case
+
+=== Fixes
+
+* (addr): do not run address space generation if variable not set
+* (Makefile): allow to use globally installed tools like desyrdl
+* use the same name for II/IBUS as DesyRDL
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.6.0\...0.6.1[`0.6.0...0.6.1`]
+
+== 0.6.0 (2021-12-15)
+
+
+=== New Features
+
+* (tool): GHDL tool support added
+
+=== Fixes
+
+* (addr): use a single folder for all access channels
+
+=== Others
+
+* correct f8afe4e fix
+* (deps): update desyrdl to 0.1.1
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.5.0\...0.6.0[`0.5.0...0.6.0`]
+
+== 0.5.0 (2021-12-07)
+
+
+=== Fixes
+
+* (addr): don't merge mapfiles
+* (addr): always assign the access channel in SystemRDL
+* (addr): Instantiate children of II nodes in generated RDL
+
+=== Others
+
+* (deps): update desyrdl 0.1.0
+* (addr): dot not add access channel to parent Rdl
+* (tls): update desyrdl
+* (header): add SPDX license and change header format
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.4.0\...0.5.0[`0.4.0...0.5.0`]
+
+== 0.4.0 (2021-08-30)
+
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.3.1\...0.4.0[`0.3.1...0.4.0`]
+
+== 0.3.1 (2021-06-17)
+
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.3.0\...0.3.1[`0.3.0...0.3.1`]
+
+== 0.3.0 (2021-05-13)
+
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.2.0\...0.3.0[`0.2.0...0.3.0`]
+
+== 0.2.0 (2021-05-13)
+
+
+Full set of changes: link:https://gitlab.desy.de/fpgafw/fwk/-/compare/0.1.0\...0.2.0[`0.1.0...0.2.0`]
+
+== 0.1.0 (2021-03-13)
+

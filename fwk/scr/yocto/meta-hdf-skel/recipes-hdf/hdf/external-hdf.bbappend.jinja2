@@ -1,0 +1,11 @@
+{%- from 'hdf_recipe_macros.jinja2' import psconfig with context -%}
+
+{#
+    This is a BitBake recipe template to be populated with "make yocto_hdf"
+    Enter the HDF file pattern below (can be a glob expression);
+    the project's "out" directory will be recursively globbed for that file
+#}
+
+{%- set hdf = get_hdf("hdfprojectname*.xsa") -%}
+
+{{ psconfig(hdf) }}

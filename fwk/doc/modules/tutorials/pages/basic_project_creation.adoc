@@ -1,0 +1,395 @@
+= Basic Tutorial
+:navtitle: Basic Tutorial
+
+This basic tutorial covers the general process to create a FPGA Firmware project on Vivado by using the FWK. The FWK comes with several helper shell scripts to help users on create a basic project structure, along with creating a simple module. +
+
+== Creating Project Structure
+
+Start by creating a folder called `demo`. First thing to do is to add the FWK . After FWK gets added, recursively update the git submodule to fetch the other dependencies (eg. DesyRDL)
+[source,shell]
+----
+mkdir demo
+cd demo
+git clone https://gitlab.desy.de/fpgafw/fwk.git
+----
+
+FWK comes with helper shell scripts to let users create a basic folder structure and prepared common files for a FPGA project. +
+Open the terminal and run the command from the project folder (`./demo/`). +
+[source,shell]
+----
+./fwk/scr/init_fwfwk_prj.sh demo
+----
+
+This shell scripts created several folders namely `cfg`, `doc`, `out`, `prj`, `src` and lastly `tcl`. Next chapter explain each of these folders. It also creates `Makefile` which just points to the start point for FWK commands.
+
+=== Project Folder Structure
+
+. `cfg` : Configuration folder where all project configuration files will be stored
+. `doc` : Documentation folder where all documentation of this project will be stored
+. `out` : Output folder where the build process artifacts will be stored
+. `src` : Source folder where all IPs/Modules will be stored
+. `tcl` : tcl scripts folder where all tcl scripts that initiate the project creation/implementation will be stored
+
+The `cfg` folder contains `default.cfg` file. This file tells FWK how to create and configure the whole project. +
+
+The helper scripts already filled this file with bunch of parameters which is necessary for FWK to start.
+
+Inspecting the `default.cfg` reveals following parameters are already present:
+
+[source,Makefile,title=./src/default.cfg]
+----
+# project default configuration
+ProjectName=demo
+ProjectConf=default
+ProjectTcl=tcl/project.tcl
+ToolType=
+----
+
+Each project needs to have a name (dictated by `ProjectName` variable) and a project configuration (dictated by `ProjectConf`). This is a must for FWK. +
+
+It also points to the initial tcl script which will kick start everything with `ProjectTcl`. This is currently pointing to a tcl file which is already present at `./tcl/project.tcl`.
+
+`ToolType` parameters tells FWK which tool backend to use. In this example, `Vivado` will be used hence edit the following line: `ToolType=vivado`
+
+== Create a Vivado Project
+
+Everything necessary to create a Vivado project is now there.
+
+TIP: At this point, Xilinx tools must be visible to the command line.
+
+[source,shell]
+----
+source <Xilinx_Installation_Path>/Vivado/<vivado_version>/settings64.sh
+----
+
+[source,shell]
+----
+make cfg=default project
+----
+
+FWK now created an empty Vivado project named `demo_default` under `./prj` folder.
+
+Users can now open the Vivado GUI using FWK command with
+
+[source,shell]
+----
+make cfg=default gui
+----
+
+Of course, this Vivado project is empty and useless since there are no files/modules/IPs that is introduced to FWK. So let's close the Vivado and add something interesting to the project.
+
+== Creating a simple module
+
+Now that there is a basic structure for the project, next step is to create a simple module called `app_demo`. Again, just like in previous step, helper shell scripts from FWK will be used:
+
+[source,shell]
+----
+./fwk/scr/init_demo_module.sh ./src/app_demo
+----
+
+This script takes one argument to point the location of the module that will be created
+
+TIP: It is recommended to keep all modules under the `./src` folder in order to manage file dependencies between libraries and modules manageable.
+
+The `init_module.sh` created the basic folder structure inside `./demo/src/app_demo/`. Note that this folder structure is common for all DESY modules. However FWK is flexible enough to handle different folder structures if necessary.
+
+. `doc` : Documentation folder where all documentation of this module will be stored here
+. `hdl` : All hardware definition language files (.vhd, .v, .sv etc.) stored here
+. `sim` : All simulation related files (.py, .vhd, .m etc.) goes here
+. `tcl` : tcl scripts to introduce this module to FWK goes here
+
+Inside the `hdl` folder of the app_demo module, there is already a VHDL file called `app_demo.vhd`. This is a simple 32 bit counter.
+
+[source=vhdl,title=./src/app_demo/hdl/app_demo_top.vhd]
+----
+-------------------------------------------------------------------------------
+--          ____  _____________  __                                          --
+--         / __ \/ ____/ ___/\ \/ /                 _   _   _                --
+--        / / / / __/  \__ \  \  /                 / \ / \ / \               --
+--       / /_/ / /___ ___/ /  / /               = ( M | S | K )=             --
+--      /_____/_____//____/  /_/                   \_/ \_/ \_/               --
+--                                                                           --
+-------------------------------------------------------------------------------
+-- Copyright (c) 2020 DESY
+-------------------------------------------------------------------------------
+--! @brief   Basic Example for FWK Module
+--! @created 2020-01-30
+-------------------------------------------------------------------------------
+--! Description:
+--! Simple Entity that creates a 32 bit counter with active high reset
+-------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+-- FWK adds app_demo's Config parameters as VHDL packages in 'work' library.
+-- This package contains the C_RESET_TYPE constant declaration
+use work.pkg_app_demo_config.all;
+
+entity app_demo_top is
+port(
+  pi_clock : in std_logic;
+  pi_reset : in std_logic;
+  po_counter : out std_logic_vector(31 downto 0)
+);
+end app_demo_top;
+
+architecture behavioral of app_demo_top is
+  signal counter : unsigned(31 downto 0);
+begin
+
+  po_counter <= std_logic_vector(counter);
+
+  gen_sync_reset : if C_RESET_TYPE = "SYNC" generate
+    process(pi_clock) begin
+      if rising_edge(pi_clock) then
+        if pi_reset = '1' then
+          counter <= (others => '0');
+        else
+          counter <= counter + 1;
+        end if;
+      end if;
+    end process;
+
+  end generate;
+
+  gen_async_reset : if C_RESET_TYPE = "ASYNC" generate
+    process(pi_clock, pi_reset) begin
+      if pi_reset = '0' then
+        counter <= (others => '0');
+      elsif rising_edge(pi_clock) then
+        counter <= counter + 1;
+      end if;
+    end process;
+  end generate;
+
+end behavioral;
+----
+
+Pay attention how `C_RESET_TYPE` can affect the logic. This VHDL constant is actually coming from the FWK auto-generated file called `pkg_app_demo_config.vhd`. Later chapters explain how these VHDL constants are generated.
+
+There is also `main.tcl` inside `./tcl` folder of app_demo module. Next chapter inspect this tcl file since this is a crucial point in FWK build flow.
+
+=== Inspecting the app_demo main.tcl
+
+
+The helper script created `./src/app_demo/tcl/main.tcl`. Let's see what's inside.
+
+[source,tcl,title=./src/app_demo/tcl/main.tcl]
+----
+################################################################################
+# Main tcl for the Demo module
+################################################################################
+
+# ==============================================================================
+proc init {} {
+  variable Config
+
+  # Declaring to FWK that Config variables should be rendered 
+  # as VHDL package and added to the project
+  variable addConfigAsHdl 1
+
+  # Setting default value for Reset Type
+  set Config(C_RESET_TYPE) "SYNC"
+}
+
+# ==============================================================================
+proc setSources {} {
+  variable Sources
+  lappend Sources {"../hdl/app_demo_top.vhd" "VHDL 2008"}
+}
+
+# ==============================================================================
+proc setAddressSpace {} {
+}
+
+# ==============================================================================
+proc doOnCreate {} {
+  addSources "Sources"
+}
+
+# ==============================================================================
+proc doOnBuild {} {
+}
+
+# ==============================================================================
+proc setSim {} {
+}
+----
+
+Inside the main.tcl, module uses pre-defined `::fwfwk` namespace procedures in order to identify itself to FWK. Chapters below explain the `init`, `setSources` and `doOnCreate` procedure usage on `app_demo` module.
+
+Inside the FWK domain, each module has a variable called `Config` (eg. `::fwfwk::src:app_demo::Config`) . Any module can use this variable to describe it's configuration space. If another module instances `app_demo` module, it should be able to change the parameter space of `app_demo`. This is done on the `project.tcl` side.
+
+In this `app_demo` module, the parameter `C_RESET_TYPE` gets declared on `init` proc and it gets set a default value of `"SYNC"`. However, `project.tcl` can change this value after it instantiates the `app_demo` module.
+
+On `setSources` procedure, FWK provides a `Sources` variable to be filled by modules. Here `app_demo` module adds the file path for `app_demo_top.vhd` file and sets the VHDL type to `VHDL 2008`. +
+
+On `doOnCreate` module tells the FWK to simply add the `Sources` to the FPGA project.
+
+
+== Editing Project TCL file
+
+There is one last step needed to make sure this new `app_demo` module gets introduced to the FWK build flow. The `./tcl/project.tcl` needs to reflect where this new `app_demo/tcl/main.tcl` script is located
+
+* open tcl/project.tcl
+* edit the `init{}` procedure as follows
+
+[source,tcl,title=./tcl/project.tcl]
+----
+proc init {} {
+  addSrcModule app ${::fwfwk::ProjectPath}/src/app_demo/tcl/main.tcl
+  set app::Config(C_RESET_TYPE) "ASYNC"
+}
+----
+
+`${::fwfwk::ProjectPath}` is already a global variable known by FWK which points to the root directory of the `demo` project folder.
+
+Pay attention how `project.tcl` is now changing the parameter `C_RESET_TYPE` to `ASYNC` after the instantiation. 
+
+== Using Config variable inside the HDL
+
+Once `C_RESET_TYPE` is set, this information can be used inside the HDL logic. After the `init` stage completes, FWK will export all module's Config parameter as a synthesizable VHDL code. Below is the generated `pkg_app_demo_config.vhd` file:
+
+[source=vhdl,title=./prj/demo_default/demo_default.hdl_config/pkg_app_demo_config.vhd]
+----
+------------------------------------------------------------------------------
+--          ____  _____________  __                                         --
+--         / __ \/ ____/ ___/\ \/ /                 _   _   _               --
+--        / / / / __/  \__ \  \  /                 / \ / \ / \              --
+--       / /_/ / /___ ___/ /  / /               = ( M | S | K )=            --
+--      /_____/_____//____/  /_/                   \_/ \_/ \_/              --
+--                                                                          --
+------------------------------------------------------------------------------
+-- @copyright Copyright 2018-2024 DESY
+-- SPDX-License-Identifier: CERN-OHL-W-2.0
+------------------------------------------------------------------------------
+-- @author FWK (Generated)
+------------------------------------------------------------------------------
+-- @brief This VHDL package is generated automatically by FWK using Jinja2 Template Engine
+-- Each Module that gets added to the FWK project can have a "Config" variable
+-- inside its namespace (eg. ::fwfwk::src:daq)
+-- FWK takes the Config variable from this namespace and exports it to a HDL file
+-- such that FPGA logic can use these Configuration
+
+-- This file is automatically generated on:
+-- @date 2024-10-01
+-- @timestamp 17:42:03 CEST
+------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+package pkg_app_demo_config is
+
+  type t_natural_vector_cfg is array (natural range <>) of natural;
+
+  constant C_VERSION : natural := 16#00000000#;
+
+  constant C_PRJ_TIMESTAMP : natural := 1727797323;
+
+  constant C_RESET_TYPE : string := "ASYNC";
+
+  constant C_PRJ_SHASUM : natural := 16#20000000#;
+
+  constant C_TIMESTAMP : natural := 1727797323;
+
+  constant C_PRJ_VERSION : natural := 16#00000000#;
+
+end package pkg_app_demo_config;
+
+----
+
+== Viewing the final Vivado Project
+
+Now that the `app_demo` project is introduced to the build environment, FWK needs to create the project again.
+
+[source,shell]
+----
+make cfg=default project gui
+----
+
+In the next chapters, more advanced usage of modules will be demonstrated. (eg. Adding Registers and providing address space definitions)
+
+== Creating a Vitis project
+
+Prerequisite is an XSA file. It is created by Vivado for a firmware project.
+
+Creating the project works in two stages.
+
+. let fwk create the platform project only, based on the XSA file, and manually create an application project by running the "New Application project Wizard" in the Vitis IDE. This can be used as a starting point for the software.
+. copy these project files to a new folder under `src/sw/` and set up fwk to use them when it creates the project
+
+=== Creating the platform project only
+
+This just requires a new config file, here called `cfg/sw_hello.cfg`, and a mostly empty project Tcl file, here called `tcl/my_sw_project.tcl`. Here is an example for a Zynq-MP-based design with its ARM Cortex A53 processor as a target.
+
+```ini
+ProjectConf=sw_hello
+ProjectTcl=tcl/my_sw_project.tcl
+#AppName=
+AddrType=
+ToolType=vitis
+OsType=standalone
+CpuType=psu_cortexa53_0
+Arch=64-bit
+```
+
+```tcl
+proc init {} {}
+proc doOnCreate {} {}
+proc doOnBuild {} {}
+proc doPostBuild {} {}
+```
+
+```bash
+export FWK_HW_FILE="out/damc_fmc2zup_example_design_mpsoc/damc_fmc2zup_example_design_mpsoc_*.xsa"
+make cfg=sw_hello project gui
+```
+
+=== Adding the new application to the fwk project
+
+The developer created an application called "hello" and now wants to integrate it into fwk.
+
+The project sources can now be copied from the Vitis project folder under `prj/` into `src/sw/hello/`. The Vitis template puts all sources into an `src/` subfolder, which can be copied to `src/sw/hello/` as a whole.
+
+The config file must be updated to contain `AppName=hello`, or fwk does make Vitis create any application before trying to add source files. If the project is based on C++ instead of plain C, `AppLang=c++` must be added to the config file as well.
+
+```
+AppName=hello
+AppLang=c++
+```
+
+The project Tcl file now needs an update:
+
+```tcl
+proc init {} {
+  # You can also set up Source path (it defaults to src/)
+  set ::fwfwk::SrcPath ${::fwfwk::ProjectPath}/src/sw/
+
+  addSrcModule hello "../src/sw/hello/user.tcl"
+}
+```
+
+The software module also needs a Tcl file, here called `user.tcl`:
+
+```tcl
+proc init {} {}
+
+proc setSources {} {
+  variable Sources
+  # path in relation to tcl file
+  lappend Sources {./src "sources"}
+  lappend Sources {./src/lscript.ld "linker-script"}
+}
+
+proc doOnCreate {} {
+  addSources Sources
+}
+
+proc doOnBuild {} {}
+```
+
+This should be all. The Vitis project including the application can be recreated with `make cfg=sw_hello project` and built with `make cfg=sw_hello build`.
