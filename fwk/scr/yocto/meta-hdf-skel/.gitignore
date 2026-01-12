@@ -1,3 +1,0 @@
-packagegroups/*.bb
-recipes-hdf/*/*.bb
-recipes-hdf/*/*.bbappend

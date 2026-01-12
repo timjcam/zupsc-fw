@@ -1,9 +1,0 @@
-= Arrays
-
-== Registers
-
-== Register files
-
-== Memories
-
-== Addrmaps
