@@ -386,39 +386,10 @@ end record;
 --########################################################################
 component system is
   port (
-    DDR_cas_n : inout STD_LOGIC;
-    DDR_cke : inout STD_LOGIC;
-    DDR_ck_n : inout STD_LOGIC;
-    DDR_ck_p : inout STD_LOGIC;
-    DDR_cs_n : inout STD_LOGIC;
-    DDR_reset_n : inout STD_LOGIC;
-    DDR_odt : inout STD_LOGIC;
-    DDR_ras_n : inout STD_LOGIC;
-    DDR_we_n : inout STD_LOGIC;
-    DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
-    DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
-    DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
-    DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
-    FIXED_IO_ddr_vrn : inout STD_LOGIC;
-    FIXED_IO_ddr_vrp : inout STD_LOGIC;
-    FIXED_IO_ps_srstb : inout STD_LOGIC;
-    FIXED_IO_ps_clk : inout STD_LOGIC;
-    FIXED_IO_ps_porb : inout STD_LOGIC;
-    iic_0_scl_i : in STD_LOGIC;
-    iic_0_scl_o : out STD_LOGIC;
-    iic_0_scl_t : out STD_LOGIC;
-    iic_0_sda_i : in STD_LOGIC;
-    iic_0_sda_o : out STD_LOGIC;
-    iic_0_sda_t : out STD_LOGIC; 
-    iic_1_scl_i : in STD_LOGIC;
-    iic_1_scl_o : out STD_LOGIC;
-    iic_1_scl_t : out STD_LOGIC;
-    iic_1_sda_i : in STD_LOGIC;
-    iic_1_sda_o : out STD_LOGIC;
-    iic_1_sda_t : out STD_LOGIC; 
+       
+    pl_clk0 : out STD_LOGIC;
+    pl_resetn : out STD_LOGIC_VECTOR(0 downto 0);
+
     m_axi_awaddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
     m_axi_awprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
     m_axi_awvalid : out STD_LOGIC;
@@ -455,10 +426,7 @@ component system is
     s_axi_wlast : in STD_LOGIC;
     s_axi_wready : out STD_LOGIC;
     s_axi_wstrb : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    s_axi_wvalid : in STD_LOGIC;      
-    pl_clk0 : out STD_LOGIC;
-    pl_resetn : out STD_LOGIC_VECTOR(0 downto 0);
-    pl_temp: out std_logic_vector(11 downto 0)
+    s_axi_wvalid : in STD_LOGIC  
   );
   end component;
   

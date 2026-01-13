@@ -24,28 +24,6 @@ generic(
     SIM_MODE				: integer := 0
     );
   port (
-    ddr_addr                : inout std_logic_vector ( 14 downto 0 );
-    ddr_ba                  : inout std_logic_vector ( 2 downto 0 );
-    ddr_cas_n               : inout std_logic;
-    ddr_ck_n                : inout std_logic;
-    ddr_ck_p                : inout std_logic;
-    ddr_cke                 : inout std_logic;
-    ddr_cs_n                : inout std_logic;
-    ddr_dm                  : inout std_logic_vector ( 3 downto 0 );
-    ddr_dq                  : inout std_logic_vector ( 31 downto 0 );
-    ddr_dqs_n               : inout std_logic_vector ( 3 downto 0 );
-    ddr_dqs_p               : inout std_logic_vector ( 3 downto 0 );
-    ddr_odt                 : inout std_logic;
-    ddr_ras_n               : inout std_logic;
-    ddr_reset_n             : inout std_logic;
-    ddr_we_n                : inout std_logic;
-    fixed_io_ddr_vrn        : inout std_logic;
-    fixed_io_ddr_vrp        : inout std_logic;
-    fixed_io_mio            : inout std_logic_vector ( 53 downto 0 );
-    fixed_io_ps_clk         : inout std_logic;
-    fixed_io_ps_porb        : inout std_logic;
-    fixed_io_ps_srstb       : inout std_logic;
-    
     -- Regulator command bits
     rcom                    : out std_logic_vector(19 downto 0);
     
@@ -90,20 +68,6 @@ generic(
     gtx_gige_tx_p           : out std_logic_vector(1 downto 0);
     gtx_gige_tx_n           : out std_logic_vector(1 downto 0);
     
-    --Trigger inputs
-    trig                    : in std_logic_vector(3 downto 0);
-    
-    -- Programmable oscillator for EVR reference clock
-    si570_sck               : inout std_logic;
-    si570_sda               : inout std_logic;
-      
-    -- EEPROM for ip addr and mac & one wire interface
-    onewire_sck             : inout std_logic;
-    onewire_sda             : inout std_logic;
-    
-    --MAC ID eeprom (11AA02E48T)
-    mac_id                  : inout std_logic;
-   
     --  Front panel LED's
     fp_leds                 : out std_logic_vector(7 downto 0);
     
@@ -400,43 +364,10 @@ adc2ddr : entity work.axi4_write_adc
 
 
 sys: component system
-  port map (
-    ddr_addr(14 downto 0) => ddr_addr(14 downto 0),
-    ddr_ba(2 downto 0) => ddr_ba(2 downto 0),
-    ddr_cas_n => ddr_cas_n,
-    ddr_ck_n => ddr_ck_n,
-    ddr_ck_p => ddr_ck_p,
-    ddr_cke => ddr_cke,
-    ddr_cs_n => ddr_cs_n,
-    ddr_dm(3 downto 0) => ddr_dm(3 downto 0),
-    ddr_dq(31 downto 0) => ddr_dq(31 downto 0),
-    ddr_dqs_n(3 downto 0) => ddr_dqs_n(3 downto 0),
-    ddr_dqs_p(3 downto 0) => ddr_dqs_p(3 downto 0),
-    ddr_odt => ddr_odt,
-    ddr_ras_n => ddr_ras_n,
-    ddr_reset_n => ddr_reset_n,
-    ddr_we_n  => ddr_we_n,
-    fixed_io_ddr_vrn => fixed_io_ddr_vrn,
-    fixed_io_ddr_vrp => fixed_io_ddr_vrp,
-    fixed_io_mio(53 downto 0) => fixed_io_mio(53 downto 0),
-    fixed_io_ps_clk => fixed_io_ps_clk,
-    fixed_io_ps_porb => fixed_io_ps_porb,
-    fixed_io_ps_srstb => fixed_io_ps_srstb,
-    iic_0_scl_i => i2c0_scl_i, 
-    iic_0_scl_o => i2c0_scl_o, 
-    iic_0_scl_t => i2c0_scl_t, 
-    iic_0_sda_i => i2c0_sda_i, 
-    iic_0_sda_o => i2c0_sda_o, 
-    iic_0_sda_t => i2c0_sda_t,
-    iic_1_scl_i => i2c1_scl_i, 
-    iic_1_scl_o => i2c1_scl_o, 
-    iic_1_scl_t => i2c1_scl_t, 
-    iic_1_sda_i => i2c1_sda_i, 
-    iic_1_sda_o => i2c1_sda_o, 
-    iic_1_sda_t => i2c1_sda_t,   
+  port map (   
     pl_clk0 => pl_clk0,
     pl_resetn => pl_resetn,  
-    pl_temp => pl_temp,
+
     m_axi_araddr => m_axi4_m2s.araddr, 
     m_axi_arprot => m_axi4_m2s.arprot,
     m_axi_arready => m_axi4_s2m.arready,
@@ -456,6 +387,7 @@ sys: component system
     m_axi_wready => m_axi4_s2m.wready,
     m_axi_wstrb => m_axi4_m2s.wstrb,
     m_axi_wvalid => m_axi4_m2s.wvalid,
+    
     s_axi_awaddr => s_axi4_m2s.awaddr, 
     s_axi_awburst => s_axi4_m2s.awburst, 
     s_axi_awcache => s_axi4_m2s.awcache, 
@@ -476,16 +408,6 @@ sys: component system
     s_axi_wvalid => s_axi4_m2s.wvalid         
   );
 
-
-
-
-
-
--- tri-state buffers for i2c interface from PS to si570
-i2c0_scl_buf : IOBUF port map (O=>i2c0_scl_i, IO=>si570_sck, I=>i2c0_scl_o, T=>i2c0_scl_t);
-i2c0_sda_buf : IOBUF port map (O=>i2c0_sda_i, IO=>si570_sda, I=>i2c0_sda_o, T=>i2c0_sda_t);
-       
-i2c1_scl_buf : IOBUF port map (O=>i2c1_scl_i, IO=>onewire_sck, I=>i2c1_scl_o, T=>i2c1_scl_t);
-i2c1_sda_buf : IOBUF port map (O=>i2c1_sda_i, IO=>onewire_sda, I=>i2c1_sda_o, T=>i2c1_sda_t);    
+   
     
 end behv;

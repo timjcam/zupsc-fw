@@ -94,7 +94,7 @@ proc doOnCreate {} {
 
       
   ::fwfwk::printCBM "In ./hw/src/main.tcl doOnCreate()"
-  set_property part             xc7z030sbg485-1              [current_project]
+  set_property part             xczu6eg-ffvb1156-1-e         [current_project]
   set_property target_language  VHDL                         [current_project]
   set_property default_lib      xil_defaultlib               [current_project]
    
@@ -103,7 +103,7 @@ proc doOnCreate {} {
    
   source ${TclPath}/system.tcl
   source ${TclPath}/dac_dpram.tcl
-  source ${TclPath}/evr_gtx.tcl
+  source ${TclPath}/evr_gth.tcl
   source ${TclPath}/cordic_sine.tcl
   source ${TclPath}/gige_pcs_pma_tx.tcl
   source ${TclPath}/gige_pcs_pma_rx.tcl
