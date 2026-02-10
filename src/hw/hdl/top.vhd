@@ -24,55 +24,59 @@ generic(
     SIM_MODE				: integer := 0
     );
   port (
-    -- Regulator command bits
-    rcom                    : out std_logic_vector(19 downto 0);
-    
-    --Regulator status
-    rsts                    : in std_logic_vector(19 downto 0);
-    
-    -- 24 16-bit ADC Channels for monitoring (3 - ADS5868)
-    mon_adc_rst            : out std_logic;
-    mon_adc_cnv            : out std_logic;
-    mon_adc_sck            : out std_logic;
-    mon_adc_fs             : out std_logic; 
-    mon_adc_busy           : in std_logic_vector(2 downto 0);
-    mon_adc_sdo            : in std_logic_vector(2 downto 0);
-
-    -- 8 20-bit ADC Channels for DCCT (8 - LTC2376)
-    dcct_adc_cnv            : out std_logic;
-    dcct_adc_sck            : out std_logic;
+  
+    -- 20-bit ADC Channels for DCCT (8 - LTC2376)
+    dcct_adc_cnv            : out std_logic_vector(3 downto 0);
     dcct_adc_busy           : in std_logic_vector(3 downto 0);
-    dcct_adc_sdo            : in std_logic_vector(3 downto 0);
-
-   -- 4 18-bit DAC Channels (4 - AD5781)
-    stpt_dac_sck            : out std_logic;
-    stpt_dac_sync           : out std_logic_vector(1 downto 0);
+    dcct_adc_sck            : out std_logic_vector(3 downto 0);
+    dcct_adc_sdo            : out std_logic_vector(7 downto 0);
+    
+    -- 20-bit DAC Channels (4 - AD5781)
+    stpt_dac_sck            : out std_logic_vector(3 downto 0);
     stpt_dac_sdo            : out std_logic_vector(3 downto 0);
-     
-    --sfp i2c
-    sfp_sck                 : inout std_logic_vector(3 downto 0);
-    sfp_sda                 : inout std_logic_vector(3 downto 0);
-    sfp_leds                : out std_logic_vector(7 downto 0);
-          
+    stpt_dac_sync           : out std_logic_vector(3 downto 0);
+    
+    -- 16-bit ADC Channels for monitoring (4 - ADS5868)
+    mon_adc_cnv             : out std_logic_vector(3 downto 0);
+    mon_adc_sck             : out std_logic_vector(3 downto 0);
+    mon_adc_fs              : out std_logic_vector(3 downto 0);
+    mon_adc_rst             : out std_logic_vector(3 downto 0);
+    mon_adc_busy            : out std_logic_vector(3 downto 0);
+    mon_adc_sdo             : in std_logic_vector(3 downto 0);
+
+    -- command / status (4 bits per channel)
+    dig_in                  : in std_logic_vector(15 downto 0);
+    dig_out                 : out std_logic_vector(15 downto 0);
+    
+    dcct_flt                : in std_logic_vector(3 downto 0);
+         
     -- Embedded Event Receiver
-    gtx_evr_refclk_p        : in std_logic;
-    gtx_evr_refclk_n        : in std_logic;
-    gtx_evr_rx_p            : in std_logic;
-    gtx_evr_rx_n            : in std_logic;
+--    gtx_evr_refclk_p        : in std_logic;
+--    gtx_evr_refclk_n        : in std_logic;
+--    gtx_evr_rx_p            : in std_logic;
+--    gtx_evr_rx_n            : in std_logic;
     
     --FOFB gigE interface
-    gtx_gige_refclk_p       : in std_logic;
-    gtx_gige_refclk_n       : in std_logic;
-    gtx_gige_rx_p           : in std_logic_vector(1 downto 0);
-    gtx_gige_rx_n           : in std_logic_vector(1 downto 0);
-    gtx_gige_tx_p           : out std_logic_vector(1 downto 0);
-    gtx_gige_tx_n           : out std_logic_vector(1 downto 0);
+--    gth_gige_refclk_p       : in std_logic;
+--    gth_gige_refclk_n       : in std_logic;
+--    gth_gige_rx_p           : in std_logic_vector(1 downto 0);
+--    gth_gige_rx_n           : in std_logic_vector(1 downto 0);
+--    gth_gige_tx_p           : out std_logic_vector(1 downto 0);
+--    gth_gige_tx_n           : out std_logic_vector(1 downto 0);
     
-    --  Front panel LED's
-    fp_leds                 : out std_logic_vector(7 downto 0);
+    --sfp info
+    sfp_led                 : out std_logic_vector(11 downto 0);
+    sfp_rxlos               : in std_logic_vector(5 downto 0);
     
-    -- Fan for picozed
-    fan_ctrl                : out std_logic
+    --front panel
+    fp_in                   : in std_logic_vector(3 downto 0);
+    fp_out                  : out std_logic_vector(3 downto 0);
+    fp_led                  : out std_logic_vector(7 downto 0);
+    dbg                     : out std_logic_vector(19 downto 0); 
+
+    --enables power to AFE (power sequencing)
+    afe_enb                 : out std_logic
+
 
   );
 end top;
@@ -83,22 +87,7 @@ architecture behv of top is
    signal pl_reset              : std_logic;
    signal pl_resetn             : std_logic_vector(0 downto 0);
    signal pl_clk0               : std_logic;
-   
-   signal i2c0_scl_i            : std_logic;
-   signal i2c0_scl_t            : std_logic;
-   signal i2c0_scl_o            : std_logic;
-   signal i2c0_sda_i            : std_logic;
-   signal i2c0_sda_t            : std_logic;
-   signal i2c0_sda_o            : std_logic;  
-   
-   signal i2c1_scl_i            : std_logic;
-   signal i2c1_scl_t            : std_logic;
-   signal i2c1_scl_o            : std_logic;
-   signal i2c1_sda_i            : std_logic;
-   signal i2c1_sda_t            : std_logic;
-   signal i2c1_sda_o            : std_logic;     
-   
-   
+ 
    signal gtx_gige_refclk       : std_logic;
    signal gtx_evr_refclk        : std_logic;
    
@@ -161,43 +150,44 @@ architecture behv of top is
 
 begin
 
-fan_ctrl <= '1';
+afe_enb <= '1';
 
-fp_leds(0) <= tenhz_datasend_led;   
-fp_leds(2) <= ioc_access_led;  
-fp_leds(4) <= evr_trigs.onehz_trig_stretch; 
-fp_leds(6) <= rcom(0) or rcom(4) or rcom(8) or rcom(12);  
-fp_leds(1) <= tenkhz_trig; --'0';
-fp_leds(3) <= '0';
-fp_leds(5) <= '0';
-fp_leds(7) <= '0';
+fp_led(0) <= tenhz_datasend_led;   
+fp_led(2) <= ioc_access_led;  
+fp_led(4) <= evr_trigs.onehz_trig_stretch; 
+fp_led(6) <= '0';  
+fp_led(1) <= tenkhz_trig; --'0';
+fp_led(3) <= '0';
+fp_led(5) <= '0';
+fp_led(7) <= '0';
 
-sfp_leds(3 downto 0) <= "0000";
-sfp_leds(4) <= evr_trigs.onehz_trig_stretch;
-sfp_leds(7 downto 5) <= "000";
+sfp_led(11 downto 0) <= 12d"0";
 
+dbg(19 downto 0) <= 20d"0";
+
+fp_out <= 4d"0";
 
 pl_reset <= not pl_resetn(0); 
 
 
 
-fofb: entity work.fofb_top
-  port map(
-    pl_clk0 => pl_clk0,
-    reset => pl_reset,
-    gtrefclk_p => gtx_gige_refclk_p,
-    gtrefclk_n => gtx_gige_refclk_n,   
-    rxp => gtx_gige_rx_p,
-    rxn => gtx_gige_rx_n,
-    txp => gtx_gige_tx_p,
-    txn => gtx_gige_tx_n,
-    fofb_params => fofb_params,
-    fofb_stat => fofb_stat,
-	fofb_data => fofb_data 
-);
+--fofb: entity work.fofb_top
+--  port map(
+--    pl_clk0 => pl_clk0,
+--    reset => pl_reset,
+--    gtrefclk_p => gtx_gige_refclk_p,
+--    gtrefclk_n => gtx_gige_refclk_n,   
+--    rxp => gtx_gige_rx_p,
+--    rxn => gtx_gige_rx_n,
+--    txp => gtx_gige_tx_p,
+--    txn => gtx_gige_tx_n,
+--    fofb_params => fofb_params,
+--    fofb_stat => fofb_stat,
+--	fofb_data => fofb_data 
+--);
   
 
--- reads 8 channels of DCCT ADC's
+-- reads 8 channels of DCCT ADC's (2 per channel)
 read_dcct_adcs: entity work.DCCT_ADC_module
   port map(
     clk => pl_clk0, 
@@ -213,8 +203,7 @@ read_dcct_adcs: entity work.DCCT_ADC_module
 );
 
 
----- reads 24 channels of monitor ADC's
-mon_adc_rst <= '0';
+---- reads 4 monitor ADC's
 read_mon_adcs: entity work.adc_8ch_module
   port map(
     clk => pl_clk0, 
@@ -222,10 +211,11 @@ read_mon_adcs: entity work.adc_8ch_module
     start => tenkhz_trig, 
     mon_params => mon_params,  
     mon_adcs => mon_adcs,
-    adc8c_sdo => mon_adc_sdo,
-    adc8c_conv123 => mon_adc_cnv, 
-    adc8c_fs123 => mon_adc_fs, 
-    adc8c_sck123 => mon_adc_sck,
+    sdo => mon_adc_sdo,
+    rst => mon_adc_rst,
+    cnv => mon_adc_cnv, 
+    fs => mon_adc_fs, 
+    sck => mon_adc_sck,
     done => open
 );
 
@@ -254,8 +244,8 @@ fault_gen: entity work.fault_module
     dcct_adcs => dcct_adcs,
     mon_adcs => mon_adcs,
     dac_stat => dac_stat,
-    rcom => rcom,
-    rsts => rsts,
+    rcom => 4d"0" & dig_out, --rcom
+    rsts => 4d"0" & dig_in, --rsts
     fault_stat => fault_stat 
 );  
     
@@ -296,25 +286,25 @@ dig_io: entity work.digio_logic
     reset => pl_reset,
     tenkhz_trig => tenkhz_trig,
     fault => fault_stat,   
-    rsts => rsts,
-    rcom => rcom,
+    rcom => dig_out, --rcom
+    rsts => dcct_flt & dig_in, --rsts    
     dig_cntrl => dig_cntrl,
     dig_stat => dig_stat
 );
 
 
---embedded event receiver
-evr: entity work.evr_top 
-  port map(
-    sys_clk => pl_clk0,
-    sys_rst => pl_reset,
-    gtx_evr_refclk_p => gtx_evr_refclk_p,
-    gtx_evr_refclk_n => gtx_evr_refclk_n,
-    rx_p => gtx_evr_rx_p,
-    rx_n => gtx_evr_rx_n,
-    evr_params => evr_params,
-    evr_trigs => evr_trigs
-);	
+----embedded event receiver
+--evr: entity work.evr_top 
+--  port map(
+--    sys_clk => pl_clk0,
+--    sys_rst => pl_reset,
+--    gtx_evr_refclk_p => gtx_evr_refclk_p,
+--    gtx_evr_refclk_n => gtx_evr_refclk_n,
+--    rx_p => gtx_evr_rx_p,
+--    rx_n => gtx_evr_rx_n,
+--    evr_params => evr_params,
+--    evr_trigs => evr_trigs
+--);	
 
 
 --registers from/to ARM

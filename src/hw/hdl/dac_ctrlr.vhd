@@ -29,8 +29,8 @@ entity dac_ctrlr is
     fofb_data            : in t_fofb_data;
     dac_cntrl            : in t_dac_cntrl;
     dac_stat             : out t_dac_stat;
-    sync    		     : out std_logic_vector(1 downto 0); 
-    sclk     		     : out std_logic; 
+    sync    		     : out std_logic_vector(3 downto 0); 
+    sclk     		     : out std_logic_vector(3 downto 0); 
     sdo                  : out std_logic_vector(3 downto 0)	
     );
 end entity;
@@ -49,7 +49,7 @@ architecture arch of dac_ctrlr is
 begin
 
 
-dac1: entity work.dac_chan
+dac0: entity work.dac_chan
   port map (
     clk  => clk,
     reset => reset,
@@ -59,12 +59,12 @@ dac1: entity work.dac_chan
     dac_cntrl => dac_cntrl.ps1,
     dac_stat => dac_stat.ps1,
     n_sync1234 => sync(0),
-    sclk1234 => sclk,
+    sclk1234 => sclk(0),
     sdo => sdo(0)
   );
 
 
-dac2: entity work.dac_chan
+dac1: entity work.dac_chan
   port map (
     clk => clk,
     reset => reset,
@@ -74,11 +74,11 @@ dac2: entity work.dac_chan
     dac_cntrl => dac_cntrl.ps2,
     dac_stat => dac_stat.ps2,
     n_sync1234 => sync(1), 
-    sclk1234 => open, 
+    sclk1234 => sclk(1),  
     sdo => sdo(1)
   );
 
-dac3: entity work.dac_chan
+dac2: entity work.dac_chan
   port map (
     clk => clk,
     reset => reset,
@@ -87,12 +87,12 @@ dac3: entity work.dac_chan
     dac_numbits_sel => dac_cntrl.numbits_sel,   
     dac_cntrl => dac_cntrl.ps3,
     dac_stat => dac_stat.ps3,
-    n_sync1234 => open, 
-    sclk1234 => open, 
+    n_sync1234 => sync(2),  
+    sclk1234 => sclk(2),  
     sdo => sdo(2)
   );
 
-dac4: entity work.dac_chan
+dac3: entity work.dac_chan
   port map (
     clk => clk,
     reset => reset,
@@ -101,8 +101,8 @@ dac4: entity work.dac_chan
     dac_numbits_sel => dac_cntrl.numbits_sel,
     dac_cntrl => dac_cntrl.ps4,
     dac_stat => dac_stat.ps4,
-    n_sync1234 => open,
-    sclk1234 => open,
+    n_sync1234 => sync(3), 
+    sclk1234 => sclk(3),
     sdo => sdo(3)
   );
 

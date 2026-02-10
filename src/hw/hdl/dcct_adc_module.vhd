@@ -10,10 +10,10 @@ entity dcct_adc_module is
     start        : in std_logic; 
     dcct_params  : t_dcct_adcs_params;
     dcct_out     : out t_dcct_adcs; 
-    sdi          : in std_logic_vector(3 downto 0);
-    cnv          : out std_logic; 
-    sclk         : out std_logic; 
-    sdo          : out std_logic;
+    sdi          : in std_logic_vector(7 downto 0);
+    cnv          : out std_logic_vector(3 downto 0); 
+    sclk         : out std_logic_vector(3 downto 0); 
+    sdo          : out std_logic_vector(3 downto 0);
 	done         : out std_logic 
 ); 
 end entity; 
@@ -46,7 +46,7 @@ begin
 
 
 
-dcct_adc1: entity work.adc_ltc2376 
+dcct_adc0: entity work.adc_ltc2376 
   port map(
 	clk => clk,
 	reset => reset,
@@ -54,15 +54,15 @@ dcct_adc1: entity work.adc_ltc2376
 	start => start, 
 	busy => '0', --busy not used
 	sdi => sdi(0), 
-	cnv => cnv, 
-	sclk => sclk, 
+	cnv => cnv(0), 
+	sclk => sclk(0), 
 	sdo => open,
 	dcct1 => dcct(0),
 	dcct2 => dcct(1),
 	data_rdy => conv_done
 );
 			
-gainoff_adc1: entity work.dcct_gainoffset
+gainoff_adc0: entity work.dcct_gainoffset
   port map(
     clk => clk,
     reset => reset,
@@ -76,7 +76,7 @@ gainoff_adc1: entity work.dcct_gainoffset
 
 
 		
-dcct_adc2: entity work.adc_ltc2376
+dcct_adc1: entity work.adc_ltc2376
   port map(
 	clk => clk,
 	reset => reset,
@@ -84,15 +84,15 @@ dcct_adc2: entity work.adc_ltc2376
 	resolution => dcct_params.numbits_sel, 
 	busy => '0', --busy not used
 	sdi => sdi(1), 
-	cnv => open, 
-	sclk => open, 
+	cnv => cnv(1),  
+	sclk => sclk(1),  
 	sdo => open,
 	dcct1 => dcct(2),
 	dcct2 => dcct(3),
 	data_rdy => open
 );
 			
-gainoff_adc2: entity work.dcct_gainoffset
+gainoff_adc1: entity work.dcct_gainoffset
   port map(
     clk => clk,
     reset => reset,
@@ -107,7 +107,7 @@ gainoff_adc2: entity work.dcct_gainoffset
 
 
 			
-dcct_adc3: entity work.adc_ltc2376   
+dcct_adc2: entity work.adc_ltc2376   
   port map(
 	clk => clk,
 	reset => reset,
@@ -115,15 +115,15 @@ dcct_adc3: entity work.adc_ltc2376
 	resolution => dcct_params.numbits_sel,    
 	busy => '0', --busy not used
 	sdi => sdi(2), 
-	cnv => open, 
-	sclk => open, 
+	cnv => cnv(2),  
+	sclk => sclk(2),  
 	sdo => open,
 	dcct1 => dcct(4),
 	dcct2 => dcct(5),
 	data_rdy => open
 );
 	
-gainoff_adc3: entity work.dcct_gainoffset
+gainoff_adc2: entity work.dcct_gainoffset
   port map(
     clk => clk,
     reset => reset,
@@ -137,7 +137,7 @@ gainoff_adc3: entity work.dcct_gainoffset
 	
 			
 		
-dcct_adc4: entity work.adc_ltc2376  
+dcct_adc3: entity work.adc_ltc2376  
   port map(
 	clk => clk,
 	reset => reset,
@@ -145,15 +145,15 @@ dcct_adc4: entity work.adc_ltc2376
 	resolution => dcct_params.numbits_sel, 
 	busy => '0', --busy not used
 	sdi => sdi(3), 
-	cnv => open, 
-	sclk => open, 
+	cnv => cnv(3),  
+	sclk => sclk(3),  
 	sdo => open,
 	dcct1 => dcct(6),
 	dcct2 => dcct(7),
 	data_rdy => open
 );
 			
-gainoff_adc4: entity work.dcct_gainoffset
+gainoff_adc3: entity work.dcct_gainoffset
   port map(
     clk => clk,
     reset => reset,

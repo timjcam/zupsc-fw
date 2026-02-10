@@ -3,7 +3,7 @@
 
 
 #include <FreeRTOS.h>
-#include <xil_cache_l.h>
+//#include <xil_cache_l.h>
 #include <xil_io.h>
 
 #include <lwip/init.h>
@@ -12,7 +12,7 @@
 #include <netif/xadapter.h>
 #include <xparameters_ps.h>
 
-#include "xqspips.h"
+#include "xqspipsu.h"
 #include "xiicps.h"
 
 #include "local.h"
@@ -25,7 +25,7 @@
 psc_key* the_server;
 
 struct ScaleFactorType scalefactors[4];
-XQspiPs QspiInstance;
+XQspiPsu QspiInstance;
 XIicPs IicPsInstance0;	    // si570
 XIicPs IicPsInstance1;      // eeprom, one-wire
 
@@ -106,7 +106,7 @@ static void realmain(void *arg)
     {
         net_config conf = {};
         sdcard_handle(&conf);
-        InitSettingsfromQspi();
+        //InitSettingsfromQspi();
         net_setup(&conf);
 
     }
@@ -172,8 +172,8 @@ int main(void) {
 
 
 	init_i2c();
-	prog_si570();
-	QspiFlashInit();
+	//prog_si570();
+	//QspiFlashInit();
 
 	usleep(100);
 	ReadHardwareFlavor();
@@ -186,14 +186,14 @@ int main(void) {
 	Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RESET_REG, 0);
 
 	// Set FOFB IP Address
-    xil_printf("Setting FOFB IP Address to 10.0.142.100...\r\n");
-	Xil_Out32(XPAR_M_AXI_BASEADDR + FOFB_IPADDR_REG, 0x0A008E64);
+    //xil_printf("Setting FOFB IP Address to 10.0.142.100...\r\n");
+	//Xil_Out32(XPAR_M_AXI_BASEADDR + FOFB_IPADDR_REG, 0x0A008E64);
 
 	//Set Fault Enable Register - Move to gateware
-	for (i=1;i<5;i++) {
-	       base = XPAR_M_AXI_BASEADDR + i * CHBASEADDR;
-	       Xil_Out32(base + FAULT_MASK_REG,0x1FEF);
-	}
+	//for (i=1;i<5;i++) {
+	//       base = XPAR_M_AXI_BASEADDR + i * CHBASEADDR;
+	//       Xil_Out32(base + FAULT_MASK_REG,0x1FEF);
+	//}
 
 
 

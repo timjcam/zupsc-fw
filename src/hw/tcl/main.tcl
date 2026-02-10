@@ -22,11 +22,11 @@ proc setSources {} {
 
   lappend Sources {"../hdl/ps_io.vhd" "VHDL 2008"} 
   
-  lappend Sources {"../hdl/fofb_top_tb.vhd" "VHDL 2008"}
-  lappend Sources {"../hdl/fofb_top.vhd" "VHDL 2008"} 
-  lappend Sources {"../hdl/fofb_phy.vhd" "VHDL 2008"} 
-  lappend Sources {"../hdl/fofb_flt2fix.vhd" "VHDL 2008"}   
-  lappend Sources {"../hdl/fofb_udp_rx.vhd" "VHDL 2008"} 
+  #lappend Sources {"../hdl/fofb_top_tb.vhd" "VHDL 2008"}
+  #lappend Sources {"../hdl/fofb_top.vhd" "VHDL 2008"} 
+  #lappend Sources {"../hdl/fofb_phy.vhd" "VHDL 2008"} 
+  #lappend Sources {"../hdl/fofb_flt2fix.vhd" "VHDL 2008"}   
+  #lappend Sources {"../hdl/fofb_udp_rx.vhd" "VHDL 2008"} 
 
   lappend Sources {"../hdl/dcct_adc_module.vhd" "VHDL 2008"} 
   lappend Sources {"../hdl/adc_ltc2376.vhd"  "VHDL 2008"}
@@ -62,14 +62,15 @@ proc setSources {} {
   
   lappend Sources {"../hdl/adc2ddr.vhd" "VHDL 2008"}  
   
-  lappend Sources {"../hdl/evr_top.vhd" "VHDL 2008"}  
-  lappend Sources {"../hdl/event_rcv_chan.vhd" "VHDL 2008"}   
-  lappend Sources {"../hdl/event_rcv_ts.vhd" "VHDL 2008"}   
+  #lappend Sources {"../hdl/evr_top.vhd" "VHDL 2008"}  
+  #lappend Sources {"../hdl/event_rcv_chan.vhd" "VHDL 2008"}   
+  #lappend Sources {"../hdl/event_rcv_ts.vhd" "VHDL 2008"}   
   
   lappend Sources {"../hdl/stretch.vhd" "VHDL 2008"}  
 
-  lappend Sources {"../cstr/pins.xdc"  "XDC"}
-  lappend Sources {"../cstr/gtx.xdc"  "XDC"}
+  lappend Sources {"../cstr/afepins.xdc"  "XDC"}
+  lappend Sources {"../cstr/dfepins.xdc"  "XDC"}
+  #lappend Sources {"../cstr/gtx.xdc"  "XDC"}
   lappend Sources {"../cstr/debug.xdc"  "XDC"}
   lappend Sources {"../cstr/timing.xdc"  "XDC"}   
 
@@ -119,17 +120,17 @@ proc doOnCreate {} {
   set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/top_tb.sv] 
   set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/top_tb.sv] 
   
-  set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/cordic_sine_tb.vhd] 
-  set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/cordic_sine_tb.vhd]  
+  #set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/cordic_sine_tb.vhd] 
+  #set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/cordic_sine_tb.vhd]  
   
-  set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/smooth_ramp_tb.vhd] 
-  set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/smooth_ramp_tb.vhd] 
+  #set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/smooth_ramp_tb.vhd] 
+  #set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/smooth_ramp_tb.vhd] 
   
-  set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/fofb_top_tb.vhd] 
-  set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/fofb_top_tb.vhd] 
+  #set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/fofb_top_tb.vhd] 
+  #set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/fofb_top_tb.vhd] 
   
-  set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/nco_srocgen_tb.vhd] 
-  set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/nco_srocgen_tb.vhd]   
+  #set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/nco_srocgen_tb.vhd] 
+  #set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/nco_srocgen_tb.vhd]   
   
   #get error message, open manually in tcl window for now.
   #open_wave_config "${::fwfwk::SrcPath}/hw/sim/top_tb_behav.wcfg"

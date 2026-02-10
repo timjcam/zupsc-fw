@@ -17,7 +17,7 @@ entity digio_logic is
 	tenkhz_trig            : in std_logic; 
 	fault                  : in t_fault_stat;		  
     rsts                   : in std_logic_vector(19 downto 0);
-    rcom                   : out std_logic_vector(19 downto 0);
+    rcom                   : out std_logic_vector(15 downto 0);
     dig_cntrl              : in t_dig_cntrl;
     dig_stat               : out t_dig_stat
 );
@@ -45,7 +45,7 @@ rcom(0) <= ps_on1(0) and not fault.ps1.flt_trig;
 rcom(1) <= ps_on2(0); -- dig_cntrl.ps1.on2;
 rcom(2) <= dig_cntrl.ps1.reset;
 rcom(3) <= dig_cntrl.ps1.spare; 
-rcom(16) <= dig_cntrl.ps1.park;
+
 
 -- Digital Inputs
 dig_stat.ps1.acon <= rsts(0);
@@ -61,7 +61,7 @@ rcom(4) <= ps_on1(1) and not fault.ps2.flt_trig;
 rcom(5) <= ps_on2(1); --dig_cntrl.ps2.on2;
 rcom(6) <= dig_cntrl.ps2.reset;
 rcom(7) <= dig_cntrl.ps2.spare; 
-rcom(17) <= dig_cntrl.ps2.park;
+
 
 -- Digital Inputs
 dig_stat.ps2.acon <= rsts(4);
@@ -77,7 +77,7 @@ rcom(8) <= ps_on1(2) and not fault.ps3.flt_trig;
 rcom(9) <= ps_on2(2); --dig_cntrl.ps3.on2;
 rcom(10) <= dig_cntrl.ps3.reset;
 rcom(11) <= dig_cntrl.ps3.spare; 
-rcom(18) <= dig_cntrl.ps3.park;
+
 
 -- Digital Inputs
 dig_stat.ps3.acon <= rsts(8);
@@ -93,7 +93,7 @@ rcom(12) <= ps_on1(3) and not fault.ps4.flt_trig;
 rcom(13) <= ps_on2(3); --dig_cntrl.ps4.on2;
 rcom(14) <= dig_cntrl.ps4.reset;
 rcom(15) <= dig_cntrl.ps4.spare; 
-rcom(19) <= dig_cntrl.ps4.park;
+
 
 -- Digital Inputs
 dig_stat.ps4.acon <= rsts(12);

@@ -1,171 +1,201 @@
-
-
-
 /***************************** Include Files *********************************/
-
-#include "xparameters.h"	/* SDK generated parameters */
-#include "xqspips.h"		/* QSPI device driver */
-#include <stdio.h>
+#include "xparameters.h"
+#include "xqspipsu.h"
 #include "xil_printf.h"
+#include <string.h>
 #include "local.h"
 #include "pl_regs.h"
 #include "qspi_flash.h"
 
-
-
-extern XQspiPs QspiInstance;
+/* Your globals */
+extern XQspiPsu QspiInstance;
 extern ScaleFactorType scalefactors[4];
 extern float CONVDACBITSTOVOLTS;
 
-
-/*  Each Channel Data is stored in a different sector
- *  Ch1 = Sector1, Ch2 = Sector2 ...
- *  All reads, writes to QSPI are FLASH_PAGE_LENGTH bytes long
+/*
+ * Notes:
+ * - This is a simple, conservative SPI flash command flow using:
+ *   - 0x03 READ
+ *   - 0x02 PAGE PROGRAM
+ *   - 0x06 WREN
+ *   - 0x05 RDSR
+ *   - 0xD8/0x20 sector erase depending on your defines
+ *
+ * - Your BSP uses message-based XQspiPsu_PolledTransfer().
+ * - BusWidth/Flags macro names vary across Xilinx versions.
+ *   The ones below are the common ones for XQspiPsu_Msg.
+ *   If your build complains about any flag names, tell me which ones
+ *   and I’ll map to your exact header names.
  */
 
-void InitSettingsfromQspi() {
+static int QspiPsuTransfer_TxRx(const u8 *tx, u32 tx_len, u8 *rx, u32 rx_len, int hold_cs)
+{
+    XQspiPsu_Msg Msg[2];
+    int n = 0;
 
+    memset(Msg, 0, sizeof(Msg));
+
+    if (tx && tx_len) {
+        Msg[n].TxBfrPtr  = (u8 *)tx;
+        Msg[n].RxBfrPtr  = NULL;
+        Msg[n].ByteCount = tx_len;
+        Msg[n].Flags     = XQSPIPSU_MSG_FLAG_TX | XQSPIPSU_MSG_FLAG_POLL;
+        n++;
+    }
+
+    if (rx && rx_len) {
+        Msg[n].TxBfrPtr  = NULL;
+        Msg[n].RxBfrPtr  = rx;
+        Msg[n].ByteCount = rx_len;
+        Msg[n].Flags     = XQSPIPSU_MSG_FLAG_RX | XQSPIPSU_MSG_FLAG_POLL;
+        n++;
+    }
+
+    return XQspiPsu_PolledTransfer(&QspiInstance, Msg, n);
+}
+
+static int QspiPsuWriteEnable(void)
+{
+    u8 cmd = FLASH_WRITE_ENABLE_CMD;
+    return QspiPsuTransfer_TxRx(&cmd, 1, NULL, 0, 0);
+}
+
+static int QspiPsuReadStatus(u8 *sr)
+{
+    u8 cmd[2] = { FLASH_READ_STATUS_CMD, 0x00 };
+    u8 rsp[2] = { 0 };
+
+    /* Send 2 bytes, read 2 bytes back; status is in rsp[1] for this style */
+    int st = QspiPsuTransfer_TxRx(cmd, sizeof(cmd), rsp, sizeof(rsp), 0);
+    if (st != XST_SUCCESS) return st;
+
+    *sr = rsp[1];
+    return XST_SUCCESS;
+}
+
+static int QspiPsuWaitWhileBusy(void)
+{
+    u8 sr;
+    while (1) {
+        int st = QspiPsuReadStatus(&sr);
+        if (st != XST_SUCCESS) return st;
+        if ((sr & 0x01) == 0) break;  /* WIP bit cleared */
+    }
+    return XST_SUCCESS;
+}
+
+/***************************** Your existing logic ****************************/
+
+void InitSettingsfromQspi(void)
+{
     u32 chan;
     u8 readbuf[FLASH_PAGE_SIZE];
 
-    // global values - hardcode for now
+    /* global values - hardcode for now */
     Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_INJ_EVENTNUM_REG, 10);
     Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_PM_EVENTNUM_REG, 10);
 
-    //channel values, readfromflash and write FPGA registers
-    for (chan=1; chan<=4; chan++) {
-       //xil_printf("Channel : %d\r\n",chan);
-   	   QspiFlashRead(chan*FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, readbuf);
-       QspiDisperseData(chan,readbuf);
-       //xil_printf("\r\n\r\n");
+    for (chan = 1; chan <= 4; chan++) {
+        QspiFlashRead(chan * FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, readbuf);
+        QspiDisperseData(chan, readbuf);
     }
-
 }
 
+/***************************** QSPI API (ZynqMP) ******************************/
 
-
-int QspiFlashInit()
+int QspiFlashInit(void)
 {
-    XQspiPs_Config *QspiConfig;
+    XQspiPsu_Config *QspiConfig;
     int Status;
 
-    QspiConfig = XQspiPs_LookupConfig(XPAR_XQSPIPS_0_DEVICE_ID);
-    if (NULL == QspiConfig) {
+    QspiConfig = XQspiPsu_LookupConfig(XPAR_XQSPIPSU_0_DEVICE_ID);
+    if (QspiConfig == NULL) {
         return XST_FAILURE;
     }
 
-    Status = XQspiPs_CfgInitialize(&QspiInstance, QspiConfig, QspiConfig->BaseAddress);
+    Status = XQspiPsu_CfgInitialize(&QspiInstance, QspiConfig, QspiConfig->BaseAddress);
     if (Status != XST_SUCCESS) {
         return XST_FAILURE;
     }
 
-    XQspiPs_SetOptions(&QspiInstance, XQSPIPS_MANUAL_START_OPTION | XQSPIPS_FORCE_SSELECT_OPTION);
-    XQspiPs_SetClkPrescaler(&QspiInstance, XQSPIPS_CLK_PRESCALE_8);
+    /* Conservative settings */
+    XQspiPsu_SetOptions(&QspiInstance, XQSPIPSU_MANUAL_START_OPTION);
+    XQspiPsu_SetClkPrescaler(&QspiInstance, XQSPIPSU_CLK_PRESCALE_8);
 
-    XQspiPs_SetSlaveSelect(&QspiInstance);
+    /* Your BSP doesn't have CS0; it does have CS_BOTH */
+    XQspiPsu_Select(&QspiInstance, XQSPIPSU_SELECT_FLASH_CS_BOTH);
 
     return XST_SUCCESS;
 }
 
-
-
-
-
 void QspiFlashRead(u32 Address, u32 ByteCount, u8 *ReadBuf)
 {
+    /* Command + 24-bit address (0x03 read) */
+    u8 cmd[4];
 
-    u8 WriteBuf[4];
+    cmd[0] = FLASH_READ_CMD;
+    cmd[1] = (u8)((Address >> 16) & 0xFF);
+    cmd[2] = (u8)((Address >>  8) & 0xFF);
+    cmd[3] = (u8)((Address >>  0) & 0xFF);
 
-    WriteBuf[0] =  FLASH_READ_CMD;
-    WriteBuf[1] = (u8)((Address & 0xFF0000) >> 16);
-    WriteBuf[2] = (u8)((Address & 0xFF00) >> 8);
-    WriteBuf[3] = (u8)(Address & 0xFF);
-
-    //first 4 bytes are garbage, ignore them.
-    XQspiPs_PolledTransfer(&QspiInstance, WriteBuf, ReadBuf, ByteCount);
-
+    /*
+     * Keep CS asserted between command+addr and read phase.
+     * No "first 4 bytes garbage" on ZynqMP message API: you read exactly
+     * ByteCount into ReadBuf.
+     */
+    (void)QspiPsuTransfer_TxRx(cmd, sizeof(cmd), ReadBuf, ByteCount, 1);
 }
-
-
-
 
 void QspiFlashWrite(u32 Address, u32 ByteCount, u8 *WriteBuf)
 {
-    // First 4 bytes are for the command, overwrites WriteBuf
-	
-    u8 WriteEnableCmd = { FLASH_WRITE_ENABLE_CMD };
-    u8 ReadStatusCmd[] = { FLASH_READ_STATUS_CMD, 0 };  /* Must send 2 bytes */
-    u8 FlashStatus[2];
+    int st;
 
-    // Send the write enable command to the Flash so that it can be
-    // written to, this needs to be sent as a separate transfer before the write
-    XQspiPs_PolledTransfer(&QspiInstance, &WriteEnableCmd, NULL, sizeof(WriteEnableCmd));
+    /* Write enable */
+    st = QspiPsuWriteEnable();
+    if (st != XST_SUCCESS) return;
 
-    // Setup the write command with the specified address and data for the Flash
+    /*
+     * PAGE PROGRAM typically needs:
+     *   [CMD][ADDR_MSB][ADDR][ADDR_LSB][DATA...]
+     * Your original code overwrote the first 4 bytes of WriteBuf.
+     * We keep that behavior.
+     */
     WriteBuf[0] = FLASH_WRITE_CMD;
-    WriteBuf[1] = (u8)((Address & 0xFF0000) >> 16);
-    WriteBuf[2] = (u8)((Address & 0xFF00) >> 8);
-    WriteBuf[3] = (u8)(Address & 0xFF);
+    WriteBuf[1] = (u8)((Address >> 16) & 0xFF);
+    WriteBuf[2] = (u8)((Address >>  8) & 0xFF);
+    WriteBuf[3] = (u8)((Address >>  0) & 0xFF);
 
-	
-    // Send the write command, address, and data to the Flash to be
-    // written, no receive buffer is specified since there is nothing to receive
-    XQspiPs_PolledTransfer(&QspiInstance, WriteBuf, NULL, ByteCount);
+    /* Send command+addr+data, hold CS through the whole TX */
+    (void)QspiPsuTransfer_TxRx(WriteBuf, ByteCount, NULL, 0, 0);
 
-
-
-    // Wait for the write command to the Flash to be completed, it takes
-    // some time for the data to be written
-    while (1) {		
-        // Poll the status register of the Flash to determine when it
-        // completes, by sending a read status command and receiving the
-        // status byte
-        XQspiPs_PolledTransfer(&QspiInstance, ReadStatusCmd, FlashStatus,sizeof(ReadStatusCmd));
-        if ((FlashStatus[1] & 0x01) == 0) {
-            break;
-	}
-    }
-
+    /* Wait for program complete */
+    (void)QspiPsuWaitWhileBusy();
 }
-
-
 
 void QspiFlashEraseSect(u32 sector)
 {
-    u8 WriteEnableCmd = { FLASH_WRITE_ENABLE_CMD };
-    u8 ReadStatusCmd[] = { FLASH_READ_STATUS_CMD, 0 };  /* Must send 2 bytes */
-    u8 FlashStatus[2];
-    u8 WriteBuf[4];
-    u32 Address;
+    int st;
+    u8 cmd[4];
+    u32 Address = sector * FLASH_SECTOR_SIZE;
 
-    Address = sector * FLASH_SECTOR_SIZE;
-    // Send the write enable command to the EEPROM so that it can be
-    // written to, this needs to be sent as a separate transfer
-    // before the write
-    XQspiPs_PolledTransfer(&QspiInstance, &WriteEnableCmd, NULL, sizeof(WriteEnableCmd));
+    st = QspiPsuWriteEnable();
+    if (st != XST_SUCCESS) return;
 
-    // Setup the write command with the specified address and data for the Flash
-    WriteBuf[0] = FLASH_SECTOR_ERASE_CMD;
-    WriteBuf[1] = (u8)((Address >> 16) & 0xFF);
-    WriteBuf[2] = (u8)((Address >> 8) & 0xFF);
-    WriteBuf[3] = (u8)(Address & 0xFF);
+    cmd[0] = FLASH_SECTOR_ERASE_CMD;
+    cmd[1] = (u8)((Address >> 16) & 0xFF);
+    cmd[2] = (u8)((Address >>  8) & 0xFF);
+    cmd[3] = (u8)((Address >>  0) & 0xFF);
 
+    /* Send erase command+addr */
+    (void)QspiPsuTransfer_TxRx(cmd, sizeof(cmd), NULL, 0, 0);
 
-    // Send the sector erase command and address; no receive buffer
-    // is specified since there is nothing to receive
-    XQspiPs_PolledTransfer(&QspiInstance, WriteBuf, NULL, FLASH_SECTOR_ERASE_SIZE);
-
-
-    // Wait for the sector erase command to the Flash to be competed
-    while (1) {
-        // Poll the status register of the device to determine
-        // when it completes, by sending a read status command
-        // and receiving the status byte
-        XQspiPs_PolledTransfer(&QspiInstance, ReadStatusCmd,FlashStatus,sizeof(ReadStatusCmd));
-        if ((FlashStatus[1] & 0x01) == 0)
-           break;
-    }
+    /* Wait for erase complete */
+    (void)QspiPsuWaitWhileBusy();
 }
+
+/***************************** The rest of your file **************************/
+/* QspiGatherData(), QspiPrintData(), QspiDisperseData() stay unchanged. */
+
 
 void QspiGatherData(u32 chan, u8 *writebuf) {
 

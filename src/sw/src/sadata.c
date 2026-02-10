@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <xsysmon.h>
+#include <xsysmonpsu.h>
 #include <xparameters.h>
 
 #include <FreeRTOS.h>

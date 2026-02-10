@@ -95,7 +95,7 @@ begin
               ss_buf_stat.tenkhzcnt <= datacnt;
               datacnt <= std_logic_vector(unsigned(datacnt) + 1);             
               wordnum <= 0;
-              s_axi4_m2s.awaddr <= addr_base;
+              s_axi4_m2s.awaddr <= "0000" & addr_base;
               s_axi4_m2s.awvalid <= '1';
               s_axi4_m2s.awburst <= "01";   -- Incrementing burst
               s_axi4_m2s.awcache <= "0011"; -- Normal non-cacheable bufferable

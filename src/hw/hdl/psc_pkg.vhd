@@ -321,7 +321,7 @@ end record;
 
 
 type t_pl_snapshot_axi4_m2s is record
-  awaddr :  std_logic_vector(31 downto 0);
+  awaddr :  std_logic_vector(35 downto 0);
   awburst : std_logic_vector(1 downto 0);
   awcache : std_logic_vector(3 downto 0);
   awlen : std_logic_vector(7 downto 0);
@@ -409,7 +409,7 @@ component system is
     m_axi_rresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
     m_axi_rvalid : in STD_LOGIC;
     m_axi_rready : out STD_LOGIC;
-    s_axi_awaddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    s_axi_awaddr : in STD_LOGIC_VECTOR ( 35 downto 0 );
     s_axi_awburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
     s_axi_awcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
     s_axi_awlen : in STD_LOGIC_VECTOR ( 7 downto 0 );
