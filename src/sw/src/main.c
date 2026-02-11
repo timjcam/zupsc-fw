@@ -14,6 +14,7 @@
 
 #include "xqspipsu.h"
 #include "xiicps.h"
+#include "xsysmonpsu.h"
 
 #include "local.h"
 #include "control.h"
@@ -22,12 +23,15 @@
 
 #include "xuartps.h"
 
+#include "zupsc.h"
+
 psc_key* the_server;
 
 struct ScaleFactorType scalefactors[4];
+
 XQspiPsu QspiInstance;
-XIicPs IicPsInstance0;	    // si570
-XIicPs IicPsInstance1;      // eeprom, one-wire
+XIicPs IicPsInstance;	    // all i2c devices
+XSysMonPsu SysMonInstance;  // Instance of the Sysmon Device
 
 uint32_t git_hash;
 
@@ -92,6 +96,7 @@ static void on_startup(void *pvt, psc_key *key)
     (void)pvt;
     (void)key;
     lstats_setup();
+    brdstats_setup();
     sadata_setup();
     snapshot_setup();
     console_setup();
@@ -176,7 +181,13 @@ int main(void) {
 	//QspiFlashInit();
 
 	usleep(100);
-	ReadHardwareFlavor();
+
+	i2c_set_port_expander(I2C_PORTEXP1_ADDR,4);
+	i2c_configure_ltc2991();
+	i2c_get_ltc2991();
+
+
+	//ReadHardwareFlavor();
 
 
 	//EVR reset

@@ -62,7 +62,8 @@ proc doOnCreate {} {
   bsp config total_heap_size "16777216"
   bsp config minimal_stack_size "1024"
   bsp config max_task_name_len "32"
-  bsp config generate_runtime_stats "1"
+  # when adding the runtime_stats, makes vtaskdelay(pdMS_TO_TICKS(1000)) 10 times faster, why ??? 
+  # bsp config generate_runtime_stats "1"
   
   bsp setlib -name xilffs
   bsp config enable_exfat true
