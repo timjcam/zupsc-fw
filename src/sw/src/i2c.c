@@ -104,10 +104,10 @@ void i2c_set_port_expander(u32 addr, u32 port)  {
 #define IIC_EEPROM_ADDR 0x50
 #define IIC_MAC_REG 0xFA
 
-
 void i2c_get_mac_address(u8 *mac){
 	i2c_set_port_expander(I2C_PORTEXP0_ADDR,0x40);
 	i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x0);
+
     u8 buf[6] = {0};
     buf[0] = IIC_MAC_REG;
     i2c_write(buf,1,IIC_EEPROM_ADDR);
@@ -117,7 +117,8 @@ void i2c_get_mac_address(u8 *mac){
 }
 
 void i2c_eeprom_writeBytes(u8 startAddr, u8 *data, u8 len){
-	i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x80);
+	i2c_set_port_expander(I2C_PORTEXP0_ADDR,0x40);
+	i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x0);
     u8 buf[len + 1];
     buf[0] = startAddr;
     for(int i = 0; i < len; i++) buf[i+1] = data[i];
@@ -127,7 +128,8 @@ void i2c_eeprom_writeBytes(u8 startAddr, u8 *data, u8 len){
 
 void i2c_eeprom_readBytes(u8 startAddr, u8 *data, u8 len){
 	u8 buf[] = {startAddr};
-	i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x80);
+	i2c_set_port_expander(I2C_PORTEXP0_ADDR,0x40);
+	i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x0);
     i2c_write(buf,1,IIC_EEPROM_ADDR);
     i2c_read(data,len,IIC_EEPROM_ADDR);
     //u8 buf[] = {startAddr};
@@ -173,37 +175,18 @@ void ReadHardwareFlavor(void)  {
     xil_printf("\r\nReading PSC Settings from EEPROM...\r\n");
     // 2 or 4 channel
     val = rdBuf[0];
-    if (val == 0) {
- 		printf("This is a 2 channel PSC\r\n");
- 		Xil_Out32(XPAR_M_AXI_BASEADDR + NUMCHANS_REG, 0);
-    }
-	else if (val == 1) {
- 		printf("This is a 4 channel PSC\r\n");
- 		Xil_Out32(XPAR_M_AXI_BASEADDR + NUMCHANS_REG, 1);
-	}
-	else {
-		Xil_Out32(XPAR_M_AXI_BASEADDR + NUMCHANS_REG, 2);
-	    xil_printf("Invalid Number of Channel Setting...\r\n");
-	}
+	printf("This is a 4 channel PSC\r\n");
+	Xil_Out32(XPAR_M_AXI_BASEADDR + NUMCHANS_REG, 1);
+
 
     // Resolution
 	val = rdBuf[1];
+	xil_printf("This is a High Resolution (20bit) PSC\r\n");
+    CONVVOLTSTODACBITS = CONVVOLTSTO20BITS;
+    CONVDACBITSTOVOLTS = CONV20BITSTOVOLTS;
     //Write FPGA register 0=MS, 1=HS
 	Xil_Out32(XPAR_M_AXI_BASEADDR + RESOLUTION_REG, val);
-	if (val == 0) {
-		xil_printf("This is an Medium Resolution (18bit) PSC\r\n");
-        CONVVOLTSTODACBITS = CONVVOLTSTO18BITS;
-        CONVDACBITSTOVOLTS = CONV18BITSTOVOLTS;
-	}
-    else if (val == 1) {
-		xil_printf("This is a High Resolution (20bit) PSC\r\n");
-	    CONVVOLTSTODACBITS = CONVVOLTSTO20BITS;
-	    CONVDACBITSTOVOLTS = CONV20BITSTOVOLTS;
-	}
-    else {
-		Xil_Out32(XPAR_M_AXI_BASEADDR + RESOLUTION_REG, 2);
-    	xil_printf("Invalid Resolution Setting...\r\n");
-    }
+
 
 
 	// Bandwidth
@@ -602,7 +585,6 @@ float i2c_ltc2991_vcc_0v85() {
 float i2c_ltc2991_vcc_0v85_current() {
     return (conv_volts_diff / conv_r_sense) * i2c_ltc2991_voltage(0x49, 6);
 }
-
 
 
 

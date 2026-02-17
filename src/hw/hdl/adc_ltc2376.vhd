@@ -24,16 +24,14 @@ port (
         clk          : in std_logic; 
         reset        : in std_logic; 
         start        : in std_logic; 
-        resolution   : in std_logic;
         --ADC Inputs
         busy         : in std_logic; 
-        sdi          : in std_logic; 
+        sdi          : in std_logic_vector(1 downto 0); 
         --ADC Outputs
         cnv          : out std_logic; 
         sclk         : out std_logic; 
-        sdo          : out std_logic;
+        dcct0        : out signed(19 downto 0);
         dcct1        : out signed(19 downto 0);
-        dcct2        : out signed(19 downto 0);
         data_rdy     : out std_logic
        );
 end entity;
@@ -45,7 +43,8 @@ architecture arch of adc_ltc2376 is
   constant CNV_WIDTH : natural := 51; --slightly more than 3us, max wait is 3us according to datasheet
 
   signal state       : state_type; 
-  signal shift_reg   : std_logic_vector(39 downto 0); 
+  signal shift_reg0  : std_logic_vector(19 downto 0); 
+  signal shift_reg1  : std_logic_vector(19 downto 0);   
   signal cnv_count   : natural range 0 to 500 := 0; 
   signal bit_count   : natural range 0 to 500 := 0; 
   signal num_bits    : integer range 0 to 40  := 0;
@@ -54,26 +53,27 @@ architecture arch of adc_ltc2376 is
   signal start_lat   : std_logic;
 
 --debug signals (connect to ila)
---   attribute mark_debug                 : string;
---   attribute mark_debug of clk_enb: signal is "true";
---   attribute mark_debug of start_lat: signal is "true";
---   attribute mark_debug of state  : signal is "true";
---   attribute mark_debug of cnv     : signal is "true";
---   attribute mark_debug of sclk  : signal is "true";
---   attribute mark_debug of sdi     : signal is "true";
---   attribute mark_debug of dcct1  : signal is "true";
---   attribute mark_debug of dcct2  : signal is "true";
---   attribute mark_debug of num_bits     : signal is "true";
---   attribute mark_debug of bit_count     : signal is "true";
---   attribute mark_debug of data_rdy     : signal is "true";
---   attribute mark_debug of start     : signal is "true";
---   attribute mark_debug of shift_reg     : signal is "true";  
+   attribute mark_debug                 : string;
+   attribute mark_debug of clk_enb: signal is "true";
+   attribute mark_debug of start_lat: signal is "true";
+   attribute mark_debug of state  : signal is "true";
+   attribute mark_debug of cnv     : signal is "true";
+   attribute mark_debug of sclk  : signal is "true";
+   attribute mark_debug of sdi     : signal is "true";
+   attribute mark_debug of dcct0  : signal is "true";
+   attribute mark_debug of dcct1  : signal is "true";  
+   attribute mark_debug of num_bits     : signal is "true";
+   attribute mark_debug of bit_count     : signal is "true";
+   attribute mark_debug of data_rdy     : signal is "true";
+   attribute mark_debug of start     : signal is "true";
+   attribute mark_debug of shift_reg0     : signal is "true";  
+   attribute mark_debug of shift_reg1     : signal is "true";     
    
 
 begin
 
 --HS=0, MS=1
-num_bits <= 36 when resolution = '0' else 40;
+num_bits <= 20; 
 
 
 
@@ -83,9 +83,10 @@ begin
     if reset = '1' then 
       cnv_count <= 0; 
       bit_count <= 0;
-      shift_reg <= (others => '0');
+      shift_reg0 <= (others => '0');
+      shift_reg1 <= (others => '0');
+      dcct0 <= 20d"0";
       dcct1 <= 20d"0";
-      dcct2 <= 20d"0";
       data_rdy  <= '0';
       cnv <= '0';
       start_lat <= '0';
@@ -129,7 +130,8 @@ begin
               end if; 
                                               
            when SCLK_HI =>  
-                shift_reg(bit_count) <= sdi;
+                shift_reg0(bit_count) <= sdi(0);
+                shift_reg1(bit_count) <= sdi(1);
                 state <= SCLK_LO; 
                 sclk <= '1';
 
@@ -143,13 +145,8 @@ begin
                 end if;     
      
            when DONE => 
-                if (resolution = '0') then
-                   dcct2 <= resize(signed(shift_reg(35 downto 18)),20); 
-                   dcct1 <= resize(signed(shift_reg(17 downto 0)),20);
-                else
-                   dcct2 <= signed(shift_reg(39 downto 20));
-                   dcct1 <= signed(shift_reg(19 downto 0));
-                end if;
+                dcct0 <= signed(shift_reg0(19 downto 0));
+                dcct1 <= signed(shift_reg1(19 downto 0));               
                 bit_count <= 0; 
                 data_rdy <= '1';
                 state <= idle;                 

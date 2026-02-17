@@ -51,6 +51,9 @@ void ltc2195_init();
 
 void dma_arm();
 
+int EepromWriteByte(u16, u8);
+u8  EepromReadByte(u32);
+
 
 void read_thermistor_thread();
 

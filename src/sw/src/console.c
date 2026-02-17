@@ -372,6 +372,7 @@ void exec_menu(const char *head, const menu_entry_t *m, size_t m_len)
 
 
     while (!XUartPs_IsReceiveData(XPAR_XUARTPS_0_BASEADDR)) {
+        //xil_printf("Waiting...\r\n");
         vTaskDelay(pdMS_TO_TICKS(10)); // Yield to other tasks
     }
     choice = XUartPs_ReadReg(XPAR_XUARTPS_0_BASEADDR, XUARTPS_FIFO_OFFSET) & 0xFF;

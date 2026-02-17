@@ -4,7 +4,7 @@
 
 
 
-# Channel 0 
+# Channel 0
 
 # DCCT ADC's
 set_property PACKAGE_PIN AF6 [get_ports {dcct_adc_cnv[0]}]
@@ -73,7 +73,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {dig_in[3]}]
 
 
 
-# Channel 1 
+# Channel 1
 
 # DCCT ADC's
 set_property PACKAGE_PIN AE2 [get_ports {dcct_adc_cnv[1]}]
@@ -141,7 +141,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {dig_in[7]}]
 
 
 
-# Channel 2 
+# Channel 2
 
 # DCCT ADC's
 set_property PACKAGE_PIN Y8 [get_ports {dcct_adc_cnv[2]}]
@@ -210,7 +210,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {dig_in[11]}]
 
 
 
-# Channel 3 
+# Channel 3
 
 # DCCT ADC's
 set_property PACKAGE_PIN U5 [get_ports {dcct_adc_cnv[3]}]
@@ -295,4 +295,5 @@ set_property PACKAGE_PIN H11 [get_ports afe_enb]
 set_property IOSTANDARD LVCMOS33 [get_ports afe_enb]
 set_property DRIVE 12 [get_ports afe_enb]
 set_property SLEW SLOW [get_ports afe_enb]
+
 

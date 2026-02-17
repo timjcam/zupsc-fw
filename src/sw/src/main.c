@@ -19,7 +19,7 @@
 #include "local.h"
 #include "control.h"
 #include "pl_regs.h"
-#include "qspi_flash.h"
+
 
 #include "xuartps.h"
 
@@ -178,16 +178,23 @@ int main(void) {
 
 	init_i2c();
 	//prog_si570();
-	//QspiFlashInit();
 
-	usleep(100);
+
+	// Qspi data is now in EEPROM
+	xil_printf("Reading AT24CM02\r\n");
+	i2c_set_port_expander(I2C_PORTEXP0_ADDR,0x80);
+	i2c_set_port_expander(I2C_PORTEXP1_ADDR,0);
+	xil_printf("Initialize Settings from EEPROM...\r\n");
+	InitSettingsfromEeprom();
+
+	//usleep(100);
 
 	i2c_set_port_expander(I2C_PORTEXP1_ADDR,4);
 	i2c_configure_ltc2991();
 	i2c_get_ltc2991();
 
 
-	//ReadHardwareFlavor();
+	ReadHardwareFlavor();
 
 
 	//EVR reset

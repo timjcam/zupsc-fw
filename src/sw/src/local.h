@@ -104,15 +104,12 @@ uint32_t htonf(float f) {
 #define CONVVOLTSTO16BITS  3276.8   // 2^16/20.0
 #define CONV16BITSTOVOLTS  (1.0/CONVVOLTSTO16BITS)
 
-#define CONVVOLTSTO18BITS  13107.2  // 2^20/20.0
-#define CONV18BITSTOVOLTS  1/CONVVOLTSTO18BITS
-
 #define CONVVOLTSTO20BITS  52428.8   // 2^20/20.0
 #define CONV20BITSTOVOLTS  1/CONVVOLTSTO20BITS
 
 #define SAMPLERATE 10000.0
 
-#define MS_RES 0  //medium resolution, 18bits
+//#define MS_RES 0  //medium resolution, 18bits
 #define HS_RES 1  //high resolution, 20bits
 
 

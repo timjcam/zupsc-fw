@@ -104,7 +104,7 @@ static void brdstats_push(void *unused)
 
     while(1) {
 
-    	xil_printf("In Board Stats...\r\n");
+    	//xil_printf("In Board Stats...\r\n");
         vTaskDelay(pdMS_TO_TICKS(1000));
 
 
@@ -129,8 +129,9 @@ static void brdstats_push(void *unused)
         //printf("Iin: %f\n",ina226_read_current());
 
         //read die temps
+        //locks up thread ???
     	//printf("FPGA Temp: %f\r\n",sysmon_read_stats());
-        msg.brd_temps.die_ps = htonf(sysmon_read_stats());
+        //msg.brd_temps.die_ps = htonf(sysmon_read_stats());
         //msg.brd_temps.die_ps = htonf(sysmon_ps_getTemp());
 
 
@@ -145,7 +146,6 @@ static void brdstats_push(void *unused)
 
         //read voltage & currents from LTC2991 chips
         msg.dfe_pwr.vin_v = htonf(i2c_ltc2991_vcc_vin());
-        printf("VinV: %f\r\n",msg.dfe_pwr.vin_v);
         msg.dfe_pwr.vin_i = htonf(i2c_ltc2991_vcc_vin_current());
         msg.dfe_pwr.v3_3_v = htonf(i2c_ltc2991_vcc_3v3());
         msg.dfe_pwr.v3_3_i = htonf(i2c_ltc2991_vcc_3v3_current());
@@ -164,7 +164,7 @@ static void brdstats_push(void *unused)
         msg.dfe_pwr.v0_9mgt_v = htonf(i2c_ltc2991_vcc_mgt_0v9());
         msg.dfe_pwr.v0_9mgt_i =  htonf(i2c_ltc2991_vcc_mgt_0v9_current());
 
-
+        /*
         // read SFP status information from i2c bus
         for (i=0;i<=5;i++) {
            i2c_sfp_get_stats(&sfpregs, i);
@@ -178,6 +178,7 @@ static void brdstats_push(void *unused)
         // Read power management info from i2c bus
     	i2c_set_port_expander(I2C_PORTEXP1_ADDR,8);
         msg.reg_temps.pwrmgmt = htonf(i2c_ltc2977_stats());
+        */
 
         //printf("\r\nDB0 Link Status: %d",gpio_read(EMIO_DB0_LINK_STAT));
         //printf("\r\nDB1 Link Status: %d",gpio_read(EMIO_DB1_LINK_STAT));

@@ -1,15 +1,6 @@
 
-#define FLASH_WRITE_CMD		    0x02
-#define FLASH_READ_CMD              0x03
-#define FLASH_SECTOR_ERASE_CMD      0xD8
-#define FLASH_SECTOR_ERASE_SIZE	    4
-#define FLASH_WRITE_ENABLE_CMD      0x06
-#define FLASH_READ_STATUS_CMD       0x05
-#define FLASH_READ_FLAG_STATUS_CMD  0x70
-#define FLASH_SECTOR_SIZE           0x10000  // 64KB per sector for Micron flash
-#define FLASH_PAGE_SIZE             256      // Typical for Micron/N25Q flash
-
-
+#define EEPROM_ADDR      0x50    // 7-bit Address
+#define EEPROM_PAGE_SIZE 252
 
 
 typedef struct QspiData {
@@ -63,12 +54,13 @@ typedef struct QspiData {
 
 
 int QspiFlashInit();
-void QspiFlashEraseSect(u32);
-void QspiFlashWrite(u32, u32, u8 *);
-void QspiFlashRead(u32, u32, u8 *);
+//void QspiFlashEraseSect(u32);
+//void QspiFlashWrite(u32, u32, u8 *);
+//void QspiFlashRead(u32, u32, u8 *);
 void QspiGatherData(u32, u8 *);
 void QspiDisperseData(u32, u8 *);
 void QspiPrintData(QspiData_t *, u32 );
+void GetEepromSettings(u32 chan);
 
 
 

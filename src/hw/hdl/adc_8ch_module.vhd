@@ -39,13 +39,22 @@ signal ch0_adcdata      : std_logic_vector(127 downto 0);
 signal ch1_adcdata      : std_logic_vector(127 downto 0);
 signal ch2_adcdata      : std_logic_vector(127 downto 0);
 signal ch3_adcdata      : std_logic_vector(127 downto 0);
+signal adc0             : signed(15 downto 0);
+signal adc1             : signed(15 downto 0);
+signal adc2             : signed(15 downto 0);
+signal adc3             : signed(15 downto 0);
+signal adc4             : signed(15 downto 0);
+signal adc5             : signed(15 downto 0);
+signal adc6             : signed(15 downto 0);
+signal adc7             : signed(15 downto 0);
+
 signal conv_done        : std_logic;
 signal done_pipe        : std_logic;
 signal mon_adcs_in      : t_mon_adcs;
 
 
    --debug signals (connect to ila)
---   attribute mark_debug                 : string;
+   attribute mark_debug                 : string;
 --   attribute mark_debug of ADC8C_CONV123: signal is "true";
 --   attribute mark_debug of ADC8C_FS123: signal is "true";
 --   attribute mark_debug of ADC8C_SCK123: signal is "true";
@@ -53,7 +62,15 @@ signal mon_adcs_in      : t_mon_adcs;
 --   attribute mark_debug of ADC_8CH_ADC1: signal is "true";
 --   attribute mark_debug of ADC_8CH_ADC2: signal is "true";
 --   attribute mark_debug of ADC_8CH_ADC3: signal is "true";       
---   attribute mark_debug of mon_adcs_in: signal is "true";
+   --attribute mark_debug of mon_adcs_in: signal is "true";
+   attribute mark_debug of adc0 : signal is "true";
+   attribute mark_debug of adc1 : signal is "true";
+   attribute mark_debug of adc2 : signal is "true";
+   attribute mark_debug of adc3 : signal is "true";      
+   attribute mark_debug of adc4 : signal is "true";
+   attribute mark_debug of adc5 : signal is "true";
+   attribute mark_debug of adc6 : signal is "true";
+   attribute mark_debug of adc7 : signal is "true";  
 
 
 begin
@@ -137,6 +154,15 @@ process(clk)
         mon_adcs_in.ps1.ignd_raw    <= signed(ch0_adcdata(95 downto 80));    -- B0
         mon_adcs_in.ps1.spare_raw   <= signed(ch0_adcdata(63 downto 48));    -- C0
         mon_adcs_in.ps1.voltage_raw <= signed(ch0_adcdata(31 downto 16));    -- D0
+        adc0 <= signed(ch0_adcdata(127 downto 112));
+        adc1 <= signed(ch0_adcdata(111 downto 96));
+        adc2 <= signed(ch0_adcdata(95 downto 80));
+        adc3 <= signed(ch0_adcdata(79 downto 64));                
+        adc4 <= signed(ch0_adcdata(63 downto 48));
+        adc5 <= signed(ch0_adcdata(47 downto 32));
+        adc6 <= signed(ch0_adcdata(31 downto 16));
+        adc7 <= signed(ch0_adcdata(15 downto 0));          
+
 
         mon_adcs_in.ps2.dacmon_raw  <= signed(ch1_adcdata(127 downto 112));  -- A0
         mon_adcs_in.ps2.ignd_raw    <= signed(ch1_adcdata(95 downto 80));    -- B0

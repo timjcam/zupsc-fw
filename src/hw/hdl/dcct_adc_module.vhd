@@ -14,6 +14,7 @@ entity dcct_adc_module is
     cnv          : out std_logic_vector(3 downto 0); 
     sclk         : out std_logic_vector(3 downto 0); 
     sdo          : out std_logic_vector(3 downto 0);
+    busy         : in std_logic_vector(3 downto 0);
 	done         : out std_logic 
 ); 
 end entity; 
@@ -31,11 +32,12 @@ architecture arch of dcct_adc_module is
 
 
 --debug signals (connect to ila)
---     attribute mark_debug                 : string;
-----   attribute mark_debug of dcct_params  : signal is "true";
-----   attribute mark_debug of dcct_out     : signal is "true";
---     attribute mark_debug of dcct : signal is "true";
-----   attribute mark_debug of done : signal is "true";
+     attribute mark_debug                 : string;
+   attribute mark_debug of sdi  : signal is "true";
+   attribute mark_debug of cnv  : signal is "true";
+   attribute mark_debug of sclk : signal is "true";
+   attribute mark_debug of busy: signal is "true";
+
 --     attribute mark_debug of conv_done: signal is "true";
 ----   attribute mark_debug of state: signal is "true";
 
@@ -46,22 +48,21 @@ begin
 
 
 
-dcct_adc0: entity work.adc_ltc2376 
+dcct0_adcch0: entity work.adc_ltc2376 
   port map(
 	clk => clk,
 	reset => reset,
-	resolution => dcct_params.numbits_sel, 
 	start => start, 
 	busy => '0', --busy not used
-	sdi => sdi(0), 
+	sdi => sdi(1 downto 0), 
 	cnv => cnv(0), 
 	sclk => sclk(0), 
-	sdo => open,
-	dcct1 => dcct(0),
-	dcct2 => dcct(1),
+	dcct0 => dcct(0),
+	dcct1 => dcct(1),
 	data_rdy => conv_done
 );
-			
+	
+		
 gainoff_adc0: entity work.dcct_gainoffset
   port map(
     clk => clk,
@@ -81,14 +82,12 @@ dcct_adc1: entity work.adc_ltc2376
 	clk => clk,
 	reset => reset,
 	start => start,  
-	resolution => dcct_params.numbits_sel, 
 	busy => '0', --busy not used
-	sdi => sdi(1), 
+	sdi => sdi(3 downto 2), 
 	cnv => cnv(1),  
 	sclk => sclk(1),  
-	sdo => open,
-	dcct1 => dcct(2),
-	dcct2 => dcct(3),
+	dcct0 => dcct(2),
+	dcct1 => dcct(3),
 	data_rdy => open
 );
 			
@@ -112,14 +111,12 @@ dcct_adc2: entity work.adc_ltc2376
 	clk => clk,
 	reset => reset,
 	start => start,
-	resolution => dcct_params.numbits_sel,    
 	busy => '0', --busy not used
-	sdi => sdi(2), 
+	sdi => sdi(5 downto 4), 
 	cnv => cnv(2),  
 	sclk => sclk(2),  
-	sdo => open,
-	dcct1 => dcct(4),
-	dcct2 => dcct(5),
+	dcct0 => dcct(4),
+	dcct1 => dcct(5),
 	data_rdy => open
 );
 	
@@ -142,14 +139,12 @@ dcct_adc3: entity work.adc_ltc2376
 	clk => clk,
 	reset => reset,
 	start => start,  
-	resolution => dcct_params.numbits_sel, 
 	busy => '0', --busy not used
-	sdi => sdi(3), 
+	sdi => sdi(7 downto 6), 
 	cnv => cnv(3),  
 	sclk => sclk(3),  
-	sdo => open,
-	dcct1 => dcct(6),
-	dcct2 => dcct(7),
+	dcct0 => dcct(6),
+	dcct1 => dcct(7),
 	data_rdy => open
 );
 			

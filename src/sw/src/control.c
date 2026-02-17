@@ -17,7 +17,8 @@
 #include "control.h"
 #include "pl_regs.h"
 #include "local.h"
-#include "qspi_flash.h"
+#include "at24eeprom.h"
+
 
 
 
@@ -364,7 +365,7 @@ void glob_settings(void *msg) {
 void chan_settings(u32 chan, void *msg, u32 msglen) {
 
     s32 scaled_val;
-    u8 qspibuf[FLASH_PAGE_SIZE];
+    u8 qspibuf[EEPROM_PAGE_SIZE];
 
 	u32 *msgptr = (u32 *)msg;
 	u32 addr;
@@ -506,6 +507,8 @@ void chan_settings(u32 chan, void *msg, u32 msglen) {
         case OVC1_THRESH_MSG:
    	        printf("Setting OVC1 Threshold CH%d :   Value=%f\r\n",(int)chan,data.f);
    	        scaled_val = data.f*CONVVOLTSTODACBITS / scalefactors[chan-1].dac_dccts;
+   	        printf("Scalefactor: %f\r\n",scalefactors[chan-1].dac_dccts);
+   	        printf("CONVVOLTSTODACBITS: %d\r\n",CONVVOLTSTODACBITS);
    	        xil_printf("ScaledVal: %d\r\n", scaled_val);
    	        Xil_Out32(XPAR_M_AXI_BASEADDR + OVC1_THRESH_REG + chan*CHBASEADDR, scaled_val);
    	        break;
@@ -709,23 +712,31 @@ void chan_settings(u32 chan, void *msg, u32 msglen) {
         	break;
 
         case WRITE_QSPI_MSG:
-        	xil_printf("Write Qspi Message..\r\n");
+        	xil_printf("Write EEPROM Message..\r\n");
         	if (data.u == 1) {
-        	   xil_printf("Writing current values for CH%dto QSPI FLASH..\r\n",chan);
-           	   QspiFlashEraseSect(chan);
+        	   xil_printf("Writing current values for CH%d to QSPI FLASH..\r\n",chan);
+        	   //xil_printf("EraseSect...\r\n");
+           	   //QspiFlashEraseSect(chan);
+           	   xil_printf("GatherData...\r\n");
         	   QspiGatherData(chan, qspibuf);
-        	   QspiFlashWrite(chan*FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, qspibuf);
+        	   xil_printf("EEPROM Write...\r\n");
+        	   EepromWrite256(chan*256, qspibuf);
+        	   //QspiFlashWrite(chan*FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, qspibuf);
+        	   xil_printf("FlashRead...\r\n");
+        	   EepromRead256(chan*256, qspibuf);
         	   //read it back out from qspi, just for kicks
-        	   QspiFlashRead(chan*FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, qspibuf);
+        	   //QspiFlashRead(chan*FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, qspibuf);
+        	   xil_printf("DisperseData...\r\n");
                QspiDisperseData(chan,qspibuf);
         	}
         	break;
 
         case READ_QSPI_MSG:
-        	xil_printf("Read Qspi Message..\r\n");
+        	xil_printf("Read EEPROM Message..\r\n");
         	if (data.u == 1) {
         	   xil_printf("Reading current values for CH%d from QSPI FLASH..\r\n",chan);
-        	   QspiFlashRead(chan*FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, qspibuf);
+        	   EepromRead256(chan*256, qspibuf);
+        	   //QspiFlashRead(chan*FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, qspibuf);
                QspiDisperseData(chan,qspibuf);
         	}
         	break;

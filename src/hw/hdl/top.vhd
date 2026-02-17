@@ -140,7 +140,23 @@ architecture behv of top is
    attribute mark_debug of pl_reset : signal is "true";
    attribute mark_debug of pl_resetn : signal is "true";
    attribute mark_debug of tenkhz_trig : signal is "true";
-   attribute mark_debug of pl_temp: signal is "true";
+
+   
+   attribute mark_debug of dcct_adc_cnv  : signal is "true";
+   attribute mark_debug of dcct_adc_busy : signal is "true";
+   attribute mark_debug of dcct_adc_sck : signal is "true";
+   attribute mark_debug of dcct_adc_sdo : signal is "true";
+  
+  
+   attribute mark_debug of mon_adc_cnv : signal is "true";
+   attribute mark_debug of mon_adc_sck : signal is "true";
+   attribute mark_debug of mon_adc_sdo : signal is "true";
+   attribute mark_debug of mon_adc_fs  : signal is "true";
+
+   
+   
+   
+   
    --attribute mark_debug of evr_params : signal is "true";
    --attribute mark_debug of evr_trigs : signal is "true";
    --attribute mark_debug of m_axi4_m2s      : signal is "true";
@@ -163,7 +179,8 @@ fp_led(7) <= '0';
 
 sfp_led(11 downto 0) <= 12d"0";
 
-dbg(19 downto 0) <= 20d"0";
+dbg(3 downto 0) <= dcct_adc_busy;
+dbg(19 downto 4) <= 16d"0";
 
 fp_out <= 4d"0";
 
@@ -198,7 +215,7 @@ read_dcct_adcs: entity work.DCCT_ADC_module
     sdi => dcct_adc_sdo, 
     cnv => dcct_adc_cnv, 
     sclk => dcct_adc_sck, 
-    sdo => open,
+    busy => dcct_adc_busy,
 	done => adc_done 
 );
 
