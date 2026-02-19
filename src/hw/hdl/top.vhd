@@ -29,7 +29,7 @@ generic(
     dcct_adc_cnv            : out std_logic_vector(3 downto 0);
     dcct_adc_busy           : in std_logic_vector(3 downto 0);
     dcct_adc_sck            : out std_logic_vector(3 downto 0);
-    dcct_adc_sdo            : out std_logic_vector(7 downto 0);
+    dcct_adc_sdo            : in std_logic_vector(7 downto 0);
     
     -- 20-bit DAC Channels (4 - AD5781)
     stpt_dac_sck            : out std_logic_vector(3 downto 0);

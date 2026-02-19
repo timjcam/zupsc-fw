@@ -155,7 +155,7 @@ gainoff_dac : entity work.dac_gainoffset
   
 
 -- select 18 bit or 20 bit, put hard limits on dac
-dac_data <= std_logic_vector(dac_setpt) when dac_numbits_sel = '1' else std_logic_vector((dac_setpt(17 downto 0) & "00"));
+dac_data <= std_logic_vector(dac_setpt); -- when dac_numbits_sel = '1' else std_logic_vector((dac_setpt(17 downto 0) & "00"));
 
 
 -- write the SPI DAC

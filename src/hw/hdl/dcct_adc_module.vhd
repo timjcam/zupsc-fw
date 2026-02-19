@@ -48,13 +48,13 @@ begin
 
 
 
-dcct0_adcch0: entity work.adc_ltc2376 
+dcct_ch0: entity work.adc_ltc2376 
   port map(
 	clk => clk,
 	reset => reset,
 	start => start, 
 	busy => '0', --busy not used
-	sdi => sdi(1 downto 0), 
+	sdi => sdi(0) & sdi(1), --sdi(1 downto 0), 
 	cnv => cnv(0), 
 	sclk => sclk(0), 
 	dcct0 => dcct(0),
@@ -77,7 +77,7 @@ gainoff_adc0: entity work.dcct_gainoffset
 
 
 		
-dcct_adc1: entity work.adc_ltc2376
+dcct_ch1: entity work.adc_ltc2376
   port map(
 	clk => clk,
 	reset => reset,
@@ -106,7 +106,7 @@ gainoff_adc1: entity work.dcct_gainoffset
 
 
 			
-dcct_adc2: entity work.adc_ltc2376   
+dcct_ch2: entity work.adc_ltc2376   
   port map(
 	clk => clk,
 	reset => reset,
@@ -134,7 +134,7 @@ gainoff_adc2: entity work.dcct_gainoffset
 	
 			
 		
-dcct_adc3: entity work.adc_ltc2376  
+dcct_ch3: entity work.adc_ltc2376  
   port map(
 	clk => clk,
 	reset => reset,
