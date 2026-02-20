@@ -39,6 +39,8 @@ entity ps_io is
 	dig_stat           : in t_dig_stat;
 	fault_stat         : in t_fault_stat;
 	fault_params       : out t_fault_params;
+	pid_cntrl          : out t_pid_cntrl;
+	pid_stat           : in t_pid_stat;	
 	fofb_params        : out t_fofb_params;
 	fofb_stat          : in t_fofb_stat;
 	tenkhz_freq        : in std_logic_vector(31 downto 0);
@@ -180,6 +182,26 @@ reg_i.ps1_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps1.
 dac_cntrl.ps1.smooth_phaseinc <= signed(reg_o.ps1_dac_smooth_phaseinc.val.data);
 
 
+-- digital loop
+pid_cntrl.ps1.kp <= reg_o.ps1_kp.val.data;
+pid_cntrl.ps1.ki <= reg_o.ps1_ki.val.data;
+pid_cntrl.ps1.kd <= reg_o.ps1_kd.val.data;
+pid_cntrl.ps1.park <= reg_o.ps1_park.val.data(0);
+pid_cntrl.ps1.digpid_enb <= reg_o.ps1_digpid_enb.val.data(0);
+pid_cntrl.ps1.ireset <= reg_o.ps1_digpid_ireset.val.data(0);
+pid_cntrl.ps1.ilimit <= reg_o.ps1_iterm_limit.val.data;
+
+reg_i.ps1_setpt_in.val.data <= pid_stat.ps1.setptin_f;
+reg_i.ps1_feedback.val.data <= pid_stat.ps1.fdbk_f;
+reg_i.ps1_error.val.data <= pid_stat.ps1.error_f;
+reg_i.ps1_pterm.val.data <= pid_stat.ps1.pterm_f;
+reg_i.ps1_iterm.val.data <= pid_stat.ps1.iterm_f;
+reg_i.ps1_dterm.val.data <= pid_stat.ps1.dterm_f;
+reg_i.ps1_sumterm.val.data <= pid_stat.ps1.sumterm_f;
+reg_i.ps1_setpt_out.val.data <= std_logic_vector(resize(pid_stat.ps1.setptout,32));
+
+
+
 -- Digital Outputs
 dig_cntrl.ps1.on1 <= reg_o.ps1_digout_on1.val.data(0);
 dig_cntrl.ps1.on2 <= reg_o.ps1_digout_on2.val.data(0);
@@ -278,6 +300,26 @@ reg_i.ps2_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps2.
 dac_cntrl.ps2.smooth_phaseinc <= signed(reg_o.ps2_dac_smooth_phaseinc.val.data);
 
 
+-- digital loop
+pid_cntrl.ps2.kp <= reg_o.ps2_kp.val.data;
+pid_cntrl.ps2.ki <= reg_o.ps2_ki.val.data;
+pid_cntrl.ps2.kd <= reg_o.ps2_kd.val.data;
+pid_cntrl.ps2.park <= reg_o.ps2_park.val.data(0);
+pid_cntrl.ps2.digpid_enb <= reg_o.ps2_digpid_enb.val.data(0);
+pid_cntrl.ps2.ireset <= reg_o.ps2_digpid_ireset.val.data(0);
+pid_cntrl.ps2.ilimit <= reg_o.ps2_iterm_limit.val.data;
+
+reg_i.ps2_setpt_in.val.data <= pid_stat.ps2.setptin_f;
+reg_i.ps2_feedback.val.data <= pid_stat.ps2.fdbk_f;
+reg_i.ps2_error.val.data <= pid_stat.ps2.error_f;
+reg_i.ps2_pterm.val.data <= pid_stat.ps2.pterm_f;
+reg_i.ps2_iterm.val.data <= pid_stat.ps2.iterm_f;
+reg_i.ps2_dterm.val.data <= pid_stat.ps2.dterm_f;
+reg_i.ps2_sumterm.val.data <= pid_stat.ps2.sumterm_f;
+reg_i.ps2_setpt_out.val.data <= std_logic_vector(resize(pid_stat.ps2.setptout,32));
+
+
+
 -- Digital Outputs
 dig_cntrl.ps2.on1 <= reg_o.ps2_digout_on1.val.data(0);
 dig_cntrl.ps2.on2 <= reg_o.ps2_digout_on2.val.data(0);
@@ -373,6 +415,26 @@ reg_i.ps3_dac_rampactive.val.data(0) <= dac_stat.ps3.active;
 reg_i.ps3_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps3.dac_setpt),32));
 
 dac_cntrl.ps3.smooth_phaseinc <= signed(reg_o.ps3_dac_smooth_phaseinc.val.data);
+
+
+-- digital loop
+pid_cntrl.ps3.kp <= reg_o.ps3_kp.val.data;
+pid_cntrl.ps3.ki <= reg_o.ps3_ki.val.data;
+pid_cntrl.ps3.kd <= reg_o.ps3_kd.val.data;
+pid_cntrl.ps3.park <= reg_o.ps3_park.val.data(0);
+pid_cntrl.ps3.digpid_enb <= reg_o.ps3_digpid_enb.val.data(0);
+pid_cntrl.ps3.ireset <= reg_o.ps3_digpid_ireset.val.data(0);
+pid_cntrl.ps3.ilimit <= reg_o.ps3_iterm_limit.val.data;
+
+reg_i.ps3_setpt_in.val.data <= pid_stat.ps3.setptin_f;
+reg_i.ps3_feedback.val.data <= pid_stat.ps3.fdbk_f;
+reg_i.ps3_error.val.data <= pid_stat.ps3.error_f;
+reg_i.ps3_pterm.val.data <= pid_stat.ps3.pterm_f;
+reg_i.ps3_iterm.val.data <= pid_stat.ps3.iterm_f;
+reg_i.ps3_dterm.val.data <= pid_stat.ps3.dterm_f;
+reg_i.ps3_sumterm.val.data <= pid_stat.ps3.sumterm_f;
+reg_i.ps3_setpt_out.val.data <= std_logic_vector(resize(pid_stat.ps3.setptout,32));
+
 
 -- Digital Outputs
 dig_cntrl.ps3.on1 <= reg_o.ps3_digout_on1.val.data(0);
@@ -471,6 +533,25 @@ reg_i.ps4_dac_rampactive.val.data(0) <= dac_stat.ps4.active;
 reg_i.ps4_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps4.dac_setpt),32));
 
 dac_cntrl.ps4.smooth_phaseinc <= signed(reg_o.ps4_dac_smooth_phaseinc.val.data);
+
+
+-- digital loop
+pid_cntrl.ps4.kp <= reg_o.ps4_kp.val.data;
+pid_cntrl.ps4.ki <= reg_o.ps4_ki.val.data;
+pid_cntrl.ps4.kd <= reg_o.ps4_kd.val.data;
+pid_cntrl.ps4.park <= reg_o.ps4_park.val.data(0);
+pid_cntrl.ps4.digpid_enb <= reg_o.ps4_digpid_enb.val.data(0);
+pid_cntrl.ps4.ireset <= reg_o.ps4_digpid_ireset.val.data(0);
+pid_cntrl.ps4.ilimit <= reg_o.ps4_iterm_limit.val.data;
+
+reg_i.ps4_setpt_in.val.data <= pid_stat.ps4.setptin_f;
+reg_i.ps4_feedback.val.data <= pid_stat.ps4.fdbk_f;
+reg_i.ps4_error.val.data <= pid_stat.ps4.error_f;
+reg_i.ps4_pterm.val.data <= pid_stat.ps4.pterm_f;
+reg_i.ps4_iterm.val.data <= pid_stat.ps4.iterm_f;
+reg_i.ps4_dterm.val.data <= pid_stat.ps4.dterm_f;
+reg_i.ps4_sumterm.val.data <= pid_stat.ps4.sumterm_f;
+reg_i.ps4_setpt_out.val.data <= std_logic_vector(resize(pid_stat.ps4.setptout,32));
 
 
 -- Digital Outputs

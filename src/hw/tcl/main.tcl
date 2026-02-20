@@ -42,8 +42,9 @@ proc setSources {} {
   lappend Sources {"../hdl/dac_gainoffset.vhd" "VHDL 2008"}  
   lappend Sources {"../hdl/smooth_ramp.vhd" "VHDL 2008"} 
   lappend Sources {"../hdl/ramptable_ramp.vhd" "VHDL 2008"}   
-  lappend Sources {"../hdl/smooth_ramp_tb.vhd" "VHDL 2008"}  
-  lappend Sources {"../hdl/cordic_sine_tb.vhd" "VHDL 2008"}
+  #lappend Sources {"../hdl/smooth_ramp_tb.vhd" "VHDL 2008"}  
+  #lappend Sources {"../hdl/cordic_sine_tb.vhd" "VHDL 2008"}
+  lappend Sources {"../hdl/pid_fp_controller.vhd" "VHDL 2008"}
   
   
   lappend Sources {"../hdl/fault_module.vhd" "VHDL 2008"} 
@@ -58,7 +59,7 @@ proc setSources {} {
   
   lappend Sources {"../hdl/tenkhz_gen.vhd" "VHDL 2008"}   
   lappend Sources {"../hdl/nco_srocgen.vhd" "VHDL 2008"}  
-  lappend Sources {"../hdl/nco_srocgen_tb.vhd" "VHDL 2008"} 
+  #lappend Sources {"../hdl/nco_srocgen_tb.vhd" "VHDL 2008"} 
   
   lappend Sources {"../hdl/adc2ddr.vhd" "VHDL 2008"}  
   
@@ -106,11 +107,15 @@ proc doOnCreate {} {
   source ${TclPath}/dac_dpram.tcl
   source ${TclPath}/evr_gth.tcl
   source ${TclPath}/cordic_sine.tcl
-  source ${TclPath}/gige_pcs_pma_tx.tcl
-  source ${TclPath}/gige_pcs_pma_rx.tcl
+  #source ${TclPath}/gige_pcs_pma_tx.tcl
+  #source ${TclPath}/gige_pcs_pma_rx.tcl
   source ${TclPath}/shift_ram.tcl
   source ${TclPath}/float_to_fix.tcl
   source ${TclPath}/fp_mult.tcl
+  source ${TclPath}/fp_sub.tcl  
+  source ${TclPath}/fp_add.tcl    
+  source ${TclPath}/fix20_to_float.tcl  
+  source ${TclPath}/float_to_fix20.tcl 
 
   addSources "Sources" 
   

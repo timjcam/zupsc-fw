@@ -27,6 +27,9 @@ entity dac_chan is
     reset                : in std_logic; 
     tenkhz_trig          : in std_logic;
     fofb_dac_setpt       : in signed(19 downto 0);
+    dcct_adcs            : in t_dcct_adcs_onech;
+    pid_cntrl            : in t_pid_cntrl_onech;
+    pid_stat             : out t_pid_stat_onech;
     dac_numbits_sel      : in std_logic;
     dac_cntrl            : in t_dac_cntrl_onech;
     dac_stat             : out t_dac_stat_onech;
@@ -37,10 +40,6 @@ entity dac_chan is
 end entity;
 
 architecture arch of dac_chan is
-
-
-type state_type is (IDLE, RUN_RAMP, UPDATE_DAC); 
-
 
  
   signal dac_data         : std_logic_vector(19 downto 0);
@@ -56,8 +55,10 @@ type state_type is (IDLE, RUN_RAMP, UPDATE_DAC);
   signal smooth_active    : std_logic;
   signal dac_trig         : std_logic;
   signal gainoff_done     : std_logic;
+
   
-  signal state : state_type;
+  signal dac_setpt_gainoff : signed(19 downto 0); 
+  signal dac_setpt_digital : signed(19 downto 0);  
 
 
 
@@ -152,6 +153,20 @@ gainoff_dac : entity work.dac_gainoffset
     done => gainoff_done
 );
   
+ 
+--Digital Control Loop
+dig_loop : entity work.pid_fp_controller
+port map(
+    clk => clk, 
+    rst => reset, 
+    start => gainoff_done, 
+    pid_cntrl => pid_cntrl,
+	pid_stat => pid_stat,   
+    setpoint => dac_setpt_gainoff,
+    feedback => dcct_adcs.dcct0, 
+    control_out => dac_setpt_digital,
+    done => open
+);  
   
 
 -- select 18 bit or 20 bit, put hard limits on dac

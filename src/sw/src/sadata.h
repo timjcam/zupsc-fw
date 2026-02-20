@@ -69,8 +69,19 @@ typedef struct SAdataChan {
     float sf_regulator;
     float sf_error;
     s32 dac_setpt_raw;
-    float fofb_dacsetpt;
-    u32 rsvd[10];
+    float dpid_kp;
+    float dpid_ki;
+    float dpid_kd;
+    float dpid_setptin;
+    float dpid_fdbk;
+    float dpid_error;
+    float dpid_pterm;
+    float dpid_iterm;
+    float dpid_dterm;
+    float dpid_sumterm;
+    s32 dpid_setptout;
+    //float fofb_dacsetpt;
+    //u32 rsvd[10];
 } SAdataChan;
 
 
