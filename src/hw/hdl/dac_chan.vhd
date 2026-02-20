@@ -149,7 +149,7 @@ gainoff_dac : entity work.dac_gainoffset
     numbits_sel => dac_numbits_sel,
     dac_setpt_raw => dac_setpt_raw,
     dac_cntrl => dac_cntrl,
-    dac_setpt => dac_setpt,
+    dac_setpt => dac_setpt_gainoff,
     done => gainoff_done
 );
   
@@ -167,6 +167,10 @@ port map(
     control_out => dac_setpt_digital,
     done => open
 );  
+  
+  
+  
+dac_setpt <= dac_setpt_gainoff when pid_cntrl.digpid_enb = '0' else dac_setpt_digital;    
   
 
 -- select 18 bit or 20 bit, put hard limits on dac

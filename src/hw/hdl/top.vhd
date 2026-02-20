@@ -182,10 +182,15 @@ fp_led(7) <= '0';
 
 sfp_led(11 downto 0) <= 12d"0";
 
-dbg(3 downto 0) <= dcct_adc_busy;
-dbg(19 downto 4) <= 16d"0";
+dbg(3 downto 0) <= "0000";
+dbg(4) <= pl_clk0;
+dbg(5) <= tenkhz_trig;
+dbg(19 downto 6) <= (others => '0');
 
-fp_out <= 4d"0";
+fp_out(3) <= '0';
+fp_out(2) <= '0';
+fp_out(1) <= tenkhz_trig;
+fp_out(0) <= pl_clk0;
 
 pl_reset <= not pl_resetn(0); 
 
