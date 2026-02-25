@@ -165,9 +165,14 @@ int main(void) {
 
 	u32 i, base;
 
+
+
     xil_printf("Power Supply Controller\r\n");
     print_firmware_version();
 
+
+	Xil_DCacheDisable();
+	Xil_ICacheDisable();
 
     //Set 10KHz trigger frequency
     //Step Size = 2^n * fout / fclk
@@ -196,12 +201,15 @@ int main(void) {
 
 	ReadHardwareFlavor();
 
+    //Temp - Reenable writes from AXI Master when reading out.
+    Xil_Out32(XPAR_M_AXI_BASEADDR + DIGOUT_SPARE_REG + 1*CHBASEADDR, 1);
+
 
 	//EVR reset
     xil_printf("Resetting EVR GTX...\r\n");
 	Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RESET_REG, 0xFF);
-	usleep(100);
-	Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RESET_REG, 0);
+	//usleep(100);
+	//Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RESET_REG, 0);
 
 	// Set FOFB IP Address
     //xil_printf("Setting FOFB IP Address to 10.0.142.100...\r\n");

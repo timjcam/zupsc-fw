@@ -85,18 +85,20 @@ void SendSnapShotStats(char *msg, TriggerTypes *trig) {
 
 
 static
-void CopyDataChan(float **msg_ptr, u32 *buf_data, u32 numwords, int chan) {
+void CopyDataChan(float **msg_ptr, volatile u32 *buf_data, u32 numwords, int chan) {
 
-	u32 i;
+	u32 i,j;
 
 	//inject some errors at sample 30000 for DCCT1 & DCCT2 for testing
     //buf_data[30000*40+2] = 0;
     //buf_data[30000*40+3] = 0;
-    //xil_printf("Start CopyDataChan...\r\n");
-	taskENTER_CRITICAL(); // disables context switches but not interrupts
+    xil_printf("Start CopyDataChan...\r\n");
+	//taskENTER_CRITICAL(); // disables context switches but not interrupts
 	//vTaskSuspendAll();
 	//portENTER_CRITICAL(); // disables context switches and interrupts
 
+	// Invalidate cache of entire circular buffer
+	//Xil_DCacheInvalidateRange(0x10000000,16e6);
 	/*
 	int offsets[] = {0, 10, 18, 26};  // Channel-specific offsets
 	if (chan < 1 || chan > 4) {
@@ -134,26 +136,32 @@ void CopyDataChan(float **msg_ptr, u32 *buf_data, u32 numwords, int chan) {
 
     switch (chan) {
         case 1:  // Copy elements 0-9
-            for (i=0; i<numwords; i=i+40) {
+            for (i=0; i<numwords; i=i+64) {
+            	//for (j=0;j<10;j++) {
+            	//	 if (buf_data[i+j] != i)
+            	//	   xil_printf("i j: %d %d    buf_data: %d\r\n",i,j, buf_data[i]);
+            	//}
+                if (i < 1000)
+            	   xil_printf("i=%d   buf_data[0] = %d\r\n", i,buf_data[i+0]);
                 **msg_ptr = buf_data[i+0];   //header
                 (*msg_ptr)++;
                 **msg_ptr = buf_data[i+1];   //data pt. counter
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+2]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT1
+                **msg_ptr = buf_data[i+2]; //1.0; //(float)(s32)(buf_data[i+2]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT1
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+3]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT2
+                **msg_ptr = buf_data[i+3]; //2.0; //(float)(s32)(buf_data[i+3]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT2
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+4]) * CONV16BITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DAC Monitor
+                **msg_ptr = buf_data[i+4]; //3.0; //(float)(s32)(buf_data[i+4]) * CONV16BITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DAC Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+5]) * CONV16BITSTOVOLTS * scalefactors[chan-1].vout;   //Voltage Monitor
+                **msg_ptr = buf_data[i+5]; //(float)(s32)(buf_data[i+5]) * CONV16BITSTOVOLTS * scalefactors[chan-1].vout;   //Voltage Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+6]) * CONV16BITSTOVOLTS * scalefactors[chan-1].ignd;   //iGND Monitor
+                **msg_ptr = buf_data[i+6]; //(float)(s32)(buf_data[i+6]) * CONV16BITSTOVOLTS * scalefactors[chan-1].ignd;   //iGND Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+7]) * CONV16BITSTOVOLTS * scalefactors[chan-1].spare;   //Spare Monitor
+                **msg_ptr = buf_data[i+7]; //(float)(s32)(buf_data[i+7]) * CONV16BITSTOVOLTS * scalefactors[chan-1].spare;   //Spare Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+8]) * CONV16BITSTOVOLTS * scalefactors[chan-1].regulator;   //Regulator
+                **msg_ptr = buf_data[i+8]; //(float)(s32)(buf_data[i+8]) * CONV16BITSTOVOLTS * scalefactors[chan-1].regulator;   //Regulator
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+9]) * CONV16BITSTOVOLTS * scalefactors[chan-1].error;   //Error
+                **msg_ptr = buf_data[i+9]; //(float)(s32)(buf_data[i+9]) * CONV16BITSTOVOLTS * scalefactors[chan-1].error;   //Error
                 (*msg_ptr)++;
                 // check for any zeros
                 //for (j=0; j<39; j++) {
@@ -166,7 +174,7 @@ void CopyDataChan(float **msg_ptr, u32 *buf_data, u32 numwords, int chan) {
 
 
         case 2: // Copy elements 0, 1, 10-17
-            for (i=0; i<numwords; i=i+40) {
+            for (i=0; i<numwords; i=i+64) {
                 **msg_ptr = buf_data[i+0];   //header
                 (*msg_ptr)++;
                 **msg_ptr = buf_data[i+1];   //data pt. counter
@@ -191,7 +199,7 @@ void CopyDataChan(float **msg_ptr, u32 *buf_data, u32 numwords, int chan) {
             break;
 
         case 3: // Copy elements 0, 1, 18-25
-            for (i=0; i<numwords; i=i+40) {
+            for (i=0; i<numwords; i=i+64) {
                  **msg_ptr = buf_data[i+0];   //header
                 (*msg_ptr)++;
                 **msg_ptr = buf_data[i+1];   //data pt. counter
@@ -216,26 +224,30 @@ void CopyDataChan(float **msg_ptr, u32 *buf_data, u32 numwords, int chan) {
             break;
 
         case 4: // Copy elements 0, 1, 26-33
-            for (i=0; i<numwords; i=i+40) {
+            for (i=0; i<numwords; i=i+64) {
+            	//for (j=26;j<33;j++) {
+            	//	 if (buf_data[i+j] == 0)
+            	//	   xil_printf("i j: %d buf_data: %d\r\n",i,j, buf_data[i]);
+            	//}
                 **msg_ptr = buf_data[i+0];   //header
                 (*msg_ptr)++;
                 **msg_ptr = buf_data[i+1];   //data pt. counter
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+26]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT1
+                **msg_ptr = buf_data[i+26]; //(float)(s32)(buf_data[i+26]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT1
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+27]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT2
+                **msg_ptr = buf_data[i+27]; //(float)(s32)(buf_data[i+27]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT2
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+28]) * CONV16BITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DAC Monitor
+                **msg_ptr = buf_data[i+28]; //(float)(s32)(buf_data[i+28]) * CONV16BITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DAC Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+29]) * CONV16BITSTOVOLTS * scalefactors[chan-1].vout;   //Voltage Monitor
+                **msg_ptr = buf_data[i+29]; //(float)(s32)(buf_data[i+29]) * CONV16BITSTOVOLTS * scalefactors[chan-1].vout;   //Voltage Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+30]) * CONV16BITSTOVOLTS * scalefactors[chan-1].ignd;   //iGND Monitor
+                **msg_ptr = buf_data[i+30]; //(float)(s32)(buf_data[i+30]) * CONV16BITSTOVOLTS * scalefactors[chan-1].ignd;   //iGND Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+31]) * CONV16BITSTOVOLTS * scalefactors[chan-1].spare;   //Spare Monitor
+                **msg_ptr = buf_data[i+31]; //(float)(s32)(buf_data[i+31]) * CONV16BITSTOVOLTS * scalefactors[chan-1].spare;   //Spare Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+32]) * CONV16BITSTOVOLTS * scalefactors[chan-1].regulator;   //Regulator
+                **msg_ptr = buf_data[i+32]; //(float)(s32)(buf_data[i+32]) * CONV16BITSTOVOLTS * scalefactors[chan-1].regulator;   //Regulator
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+33]) * CONV16BITSTOVOLTS * scalefactors[chan-1].error;   //Error
+                **msg_ptr = buf_data[i+33]; //(float)(s32)(buf_data[i+33]) * CONV16BITSTOVOLTS * scalefactors[chan-1].error;   //Error
                 (*msg_ptr)++;
              }
             break;
@@ -244,9 +256,9 @@ void CopyDataChan(float **msg_ptr, u32 *buf_data, u32 numwords, int chan) {
             //xil_printf("Error: Invalid chan value: %d\n", chan);
             break;
     }
-    //xil_printf("Finish CopyDataChan...\r\n");
+    xil_printf("Finish CopyDataChan...\r\n");
     //xTaskResumeAll();
-    taskEXIT_CRITICAL();
+    //taskEXIT_CRITICAL();
     //portEXIT_CRITICAL();
 
 }
@@ -257,21 +269,21 @@ static
 void ReadDMABuf(char *msg, TriggerInfo *trig) {
 
 	u32 BUFSTART = 0x10000000;
-	u32 BUFLEN   = 0x01E84800;
-	u32 const BUFSTEPBYTES  = 0xA0; //160 bytes
+	u32 BUFLEN   = 0x030D4000;
+	u32 const BUFSTEPBYTES  = 0x100; //256 bytes
     u32 const BUFSTEPWORDS = BUFSTEPBYTES/4;
-    u32 const WORDSPERSAMPLE = 40;
-	u32 *buf_data;
+    u32 const WORDSPERSAMPLE = 64;
+	volatile u32 *buf_data;
     float *msg_fltptr;
     u32 startaddr, stopaddr;
     u32 prefirstnumwords, presecnumwords, postfirstnumwords, postsecnumwords;
 
-    //xil_printf("In ReadDMABuf Message ID: %d\r\n",trig->msgID);
+    xil_printf("In ReadDMABuf Message ID: %d\r\n",trig->msgID);
 
     msg_fltptr = (float *)msg;
 
 	// Invalidate cache of entire circular buffer
-	Xil_DCacheInvalidateRange(0x10000000,16e6);
+	Xil_DCacheInvalidateRange(0x10000000,32e6);
 
     //find start and stop addresses for snapshot dump
     //each trigger is 10kHz
@@ -327,7 +339,13 @@ s32 SendWfmData(char *msg, TriggerInfo *trig) {
     trig->sendbuf = 0;
     trig->active = 0;
 
+    //Temp - Disable writes from AXI Master when reading out.
+    Xil_Out32(XPAR_M_AXI_BASEADDR + DIGOUT_SPARE_REG + 1*CHBASEADDR, 0);
+
 	ReadDMABuf(msg,trig);
+
+    //Temp - Reenable writes from AXI Master when reading out.
+    Xil_Out32(XPAR_M_AXI_BASEADDR + DIGOUT_SPARE_REG + 1*CHBASEADDR, 1);
 
 	hton_conv(msg,MSGWFMLEN);
     psc_send(the_server, trig->msgID, MSGWFMLEN, msg);
@@ -345,7 +363,7 @@ void ProcessTrigger(TriggerInfo *trig, const char *trig_name) {
     if ((trig->addr != trig->addr_last) && (trig->active == 0)) {
         trig->active = 1;
         trig->addr_last = trig->addr; ;
-        //xil_printf("Got %s Trigger...   BufPtr Addr: %x\r\n", trig_name, trig->addr);
+        xil_printf("Got %s Trigger...   BufPtr Addr: %x\r\n", trig_name, trig->addr);
         trig->postdlycnt = 0;
     }
 
@@ -371,7 +389,7 @@ void CheckforTriggers(TriggerTypes *trig) {
     if (trig->usr[0].active == 0)
        trig->usr[0].addr = Xil_In32(XPAR_M_AXI_BASEADDR + USR1TRIG_BUFPTR);
     ProcessTrigger(&trig->usr[0], "Usr1");
-
+/*
     if (trig->usr[1].active == 0)
        trig->usr[1].addr = Xil_In32(XPAR_M_AXI_BASEADDR + USR2TRIG_BUFPTR);
     ProcessTrigger(&trig->usr[1], "Usr2");
@@ -451,7 +469,7 @@ void CheckforTriggers(TriggerTypes *trig) {
     if (trig->evr[3].active == 0)
        trig->evr[3].addr = Xil_In32(XPAR_M_AXI_BASEADDR + EVRTRIG_BUFPTR);
     ProcessTrigger(&trig->evr[3], "Evr4");
-
+*/
 }
 
 
