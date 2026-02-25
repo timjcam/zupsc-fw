@@ -193,6 +193,7 @@ void sadata_push(void *unused)
            sadata.ps[chan].dpid_kd = ((MsgUnion){ .u = Xil_In32(base + DPID_KD_REG) }).f;
            sadata.ps[chan].dpid_setptin = ((MsgUnion){ .u = Xil_In32(base + DPID_SETPTIN_REG) }).f;
            sadata.ps[chan].dpid_fdbk = ((MsgUnion){ .u = Xil_In32(base + DPID_FDBK_REG) }).f;
+           //sadata.ps[chan].dpid_error = (float)Xil_In32(base + DPID_ERROR_REG);
            sadata.ps[chan].dpid_error = ((MsgUnion){ .u = Xil_In32(base + DPID_ERROR_REG) }).f;
            sadata.ps[chan].dpid_pterm = ((MsgUnion){ .u = Xil_In32(base + DPID_PTERM_REG) }).f;
            sadata.ps[chan].dpid_iterm = ((MsgUnion){ .u = Xil_In32(base + DPID_ITERM_REG) }).f;

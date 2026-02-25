@@ -150,7 +150,7 @@ process(clk)
   begin 
 	if rising_edge(clk) then 
 
-        mon_adcs_in.ps1.dacmon_raw  <= signed(ch0_adcdata(127 downto 112));  -- A0
+        mon_adcs_in.ps1.dacmon_raw  <= -signed(ch0_adcdata(127 downto 112));  -- A0
         mon_adcs_in.ps1.ignd_raw    <= signed(ch0_adcdata(95 downto 80));    -- B0
         mon_adcs_in.ps1.spare_raw   <= signed(ch0_adcdata(63 downto 48));    -- C0
         mon_adcs_in.ps1.voltage_raw <= signed(ch0_adcdata(31 downto 16));    -- D0
@@ -164,17 +164,17 @@ process(clk)
         adc7 <= signed(ch0_adcdata(15 downto 0));          
 
 
-        mon_adcs_in.ps2.dacmon_raw  <= signed(ch1_adcdata(127 downto 112));  -- A0
+        mon_adcs_in.ps2.dacmon_raw  <= -signed(ch1_adcdata(127 downto 112));  -- A0
         mon_adcs_in.ps2.ignd_raw    <= signed(ch1_adcdata(95 downto 80));    -- B0
         mon_adcs_in.ps2.spare_raw   <= signed(ch1_adcdata(63 downto 48));    -- C0
         mon_adcs_in.ps2.voltage_raw <= signed(ch1_adcdata(31 downto 16));    -- D0
 
-        mon_adcs_in.ps3.dacmon_raw  <= signed(ch2_adcdata(127 downto 112));  -- A0
+        mon_adcs_in.ps3.dacmon_raw  <= -signed(ch2_adcdata(127 downto 112));  -- A0
         mon_adcs_in.ps3.ignd_raw    <= signed(ch2_adcdata(95 downto 80));    -- B0
         mon_adcs_in.ps3.spare_raw   <= signed(ch2_adcdata(63 downto 48));    -- C0
         mon_adcs_in.ps3.voltage_raw <= signed(ch2_adcdata(31 downto 16));    -- D0
 
-        mon_adcs_in.ps4.dacmon_raw  <= signed(ch3_adcdata(127 downto 112));  -- A0
+        mon_adcs_in.ps4.dacmon_raw  <= -signed(ch3_adcdata(127 downto 112));  -- A0
         mon_adcs_in.ps4.ignd_raw    <= signed(ch3_adcdata(95 downto 80));    -- B0
         mon_adcs_in.ps4.spare_raw   <= signed(ch3_adcdata(63 downto 48));    -- C0
         mon_adcs_in.ps4.voltage_raw <= signed(ch3_adcdata(31 downto 16));    -- D0 

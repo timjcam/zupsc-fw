@@ -10,12 +10,14 @@ entity axi4_write_adc is
     clk             : in std_logic;
     reset           : in std_logic;
     trigger         : in std_logic;  -- 10 kHz trigger
-    --dma_rst         : in std_logic;
-    --dma_enb         : in std_logic;
-    --dma_len         : in std_logic_vector(31 downto 0);
 
     s_axi4_m2s     : out t_pl_snapshot_axi4_m2s;
     s_axi4_s2m     : in t_pl_snapshot_axi4_s2m;
+         
+    dcct_adcs        : in t_dcct_adcs;
+    mon_adcs         : in t_mon_adcs;
+    dac_stat         : in t_dac_stat; 
+    pid_stat         : in t_pid_stat;   
 
 	ss_buf_stat      : out t_snapshot_stat        
     );
@@ -25,18 +27,21 @@ end entity axi4_write_adc;
 
 architecture rtl of axi4_write_adc is
 
-   -- Make sure AXI Bursts never cross a 4k cacheline boundary.
+   -- Make sure AXI Bursts never cross a 4k cacheline boundary.  
+   -- Made BURST_LEN 64, so always aligns with 4k cacheline boundary.
    constant BURST_LEN : integer := 64;
    constant DDR_BASE_ADDR   : std_logic_vector(31 downto 0) := x"1000_0000";
    constant DDR_MAX_ADDR    : std_logic_vector(31 downto 0) := x"130D_4000";  --10KHz * 64beats*4bytes/beat * 20 sec 
    
---   type  state_type is (IDLE, ADDRESS, HDR, CNT, 
---                        PS1_DCCT1, PS1_DCCT2, PS1_MON1, PS1_MON2, PS1_MON3, PS1_MON4, PS1_MON5, PS1_MON6, 
---                        PS2_DCCT1, PS2_DCCT2, PS2_MON1, PS2_MON2, PS2_MON3, PS2_MON4, PS2_MON5, PS2_MON6,                
---                        PS3_DCCT1, PS3_DCCT2, PS3_MON1, PS3_MON2, PS3_MON3, PS3_MON4, PS3_MON5, PS3_MON6,
---                        PS4_DCCT1, PS4_DCCT2, PS4_MON1, PS4_MON2, PS4_MON3, PS4_MON4, PS4_MON5, PS4_MON6,              
---                        WRD35, WRD36, WRD37, WRD38, WRD39, WRDLAST, AWAITRESP);  
-   type state_type is (IDLE, ADDRESS, DATA, WRDLAST, AWAITRESP);
+   type  state_type is (IDLE, ADDRESS, HDR, CNT, 
+                        PS1_DCCT1, PS1_DCCT2, PS1_MON1, PS1_MON2, PS1_MON3, PS1_MON4, PS1_MON5, PS1_MON6, 
+                        PS2_DCCT1, PS2_DCCT2, PS2_MON1, PS2_MON2, PS2_MON3, PS2_MON4, PS2_MON5, PS2_MON6,                
+                        PS3_DCCT1, PS3_DCCT2, PS3_MON1, PS3_MON2, PS3_MON3, PS3_MON4, PS3_MON5, PS3_MON6,
+                        PS4_DCCT1, PS4_DCCT2, PS4_MON1, PS4_MON2, PS4_MON3, PS4_MON4, PS4_MON5, PS4_MON6,              
+                        WRD35, WRD36, WRD37, WRD38, WRD39, WRD40, WRD41, WRD42, WRD43, WRD44, WRD45, WRD46,
+                        WRD47, WRD48, WRD49, WRD50, WRD51, WRD52, WRD53, WRD54, WRD55, WRD56, WRD57, WRD58,
+                        WRD59, WRD60, WRD61, WRD62, WRD63, WRDLAST, AWAITRESP);  
+--   type state_type is (IDLE, ADDRESS, DATA, WRDLAST, AWAITRESP);
    
    signal state :  state_type;
 
@@ -48,9 +53,6 @@ architecture rtl of axi4_write_adc is
     signal prev_trigger : std_logic;
     
     signal axi_notrdy : std_logic;
-    signal cnt        : unsigned(31 downto 0);
-    signal cnt_reset  : std_logic;
-    signal cnt_enable : std_logic;
     --signal dma_lencnt : unsigned(31 downto 0);
     
     
@@ -63,10 +65,7 @@ architecture rtl of axi4_write_adc is
     attribute mark_debug of wordnum : signal is "true"; 
     attribute mark_debug of datacnt : signal is "true";  
     attribute mark_debug of state : signal is "true"; 
-    attribute mark_debug of axi_notrdy : signal is "true";
-    attribute mark_debug of cnt : signal is "true";
-    attribute mark_debug of cnt_reset : signal is "true"; 
-    attribute mark_debug of cnt_enable : signal is "true"; 
+    attribute mark_debug of axi_notrdy : signal is "true"; 
     --attribute mark_debug of dma_rst : signal is "true";
     --attribute mark_debug of dma_enb : signal is "true"; 
     --attribute mark_debug of dma_len : signal is "true";     
@@ -92,25 +91,9 @@ end procedure;
 
 begin
 
-process(clk)
-  begin
-    if rising_edge(clk) then
-      if reset = '1' then
-         cnt <= 32d"0";
-      else
-        if cnt_reset = '1' then
-           cnt <= 32d"0";
-        end if;
-        if cnt_enable = '1' then
-           cnt <= cnt + 1;
-        end if;
-      end if;
-    end if;
-end process;
+
               
-    
-
-
+   
 process(clk)
   begin
     if rising_edge(clk) then
@@ -123,24 +106,18 @@ process(clk)
         state <= idle;
         datacnt <= 32d"0";
         axi_notrdy <= '0';
-        cnt_reset <= '1';
-        cnt_enable <= '0';
         addr_base <= DDR_BASE_ADDR;
-        --dma_lencnt <= 32d"0";
+
         
       else
         case state is 
           when IDLE =>    
             axi_notrdy <= '0';            
             prev_trigger <= trigger;
-            cnt_reset <= '1';
-            --if (dma_rst = '1') then
-            --   addr_base <= DDR_BASE_ADDR;
-            --   dma_lencnt <= 32d"0";
-            --end if;  
+
             ss_buf_stat.addr_ptr <= addr_base;
             ss_buf_stat.tenkhzcnt <= datacnt;
-            if (trigger = '1' and prev_trigger = '0') then -- and dma_enb = '1' and dma_lencnt < unsigned(dma_len)) then
+            if (trigger = '1' and prev_trigger = '0') then 
 
               datacnt <= std_logic_vector(unsigned(datacnt) + 1);             
               wordnum <= 32d"0";
@@ -154,8 +131,6 @@ process(clk)
               s_axi4_m2s.awqos <= "0000";   
               s_axi4_m2s.awsize <= "010"; -- 4 bytes (32-bit)
               state <= address;
-              cnt_reset <= '0';
-              --dma_lencnt <= dma_lencnt + 1;
             end if;
 
           when ADDRESS =>
@@ -164,27 +139,98 @@ process(clk)
                  s_axi4_m2s.awvalid <= '0';  -- Address accepted
                  s_axi4_m2s.wdata <= 32d"0"; 
                  s_axi4_m2s.wstrb <= x"F";
-                 state <= data; 
+                 state <= hdr; 
                  wordnum <= 32d"1";
              end if;
-                        
-                                                               
-          when DATA =>
-              if (s_axi4_s2m.wready = '1') then
-                cnt_enable <= '1';
-                s_axi4_m2s.wvalid <= '1';
-                s_axi4_m2s.wdata <= std_logic_vector(wordnum);
-                wordnum <= wordnum + 1;
-                if wordnum = BURST_LEN-1 then
-                  state <= WRDLAST;
-                end if;
-              else 
-                axi_notrdy <= '1';
-              end if;
+ 
+ 
+          when HDR => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, x"80000000", CNT);
+          when CNT => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(unsigned(datacnt)), PS1_DCCT1); 
+           
+          when PS1_DCCT1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps1.dcct0), 32)), PS1_DCCT2); 
+          when PS1_DCCT2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps1.dcct1), 32)), PS1_MON1); 
+          when PS1_MON1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.dacmon), 32)), PS1_MON2);          
+          when PS1_MON2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.voltage), 32)), PS1_MON3);   
+          when PS1_MON3 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.ignd), 32)), PS1_MON4);   
+          when PS1_MON4 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.spare), 32)), PS1_MON5);            
+          when PS1_MON5 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps1.sumterm_f), 32)), PS1_MON6);   
+          when PS1_MON6 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps1.error_f), 32)), PS2_DCCT1);   
+
+          when PS2_DCCT1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps2.dcct0), 32)), PS2_DCCT2); 
+          when PS2_DCCT2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps2.dcct1), 32)), PS2_MON1); 
+          when PS2_MON1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps2.dacmon), 32)), PS2_MON2);          
+          when PS2_MON2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps2.voltage), 32)), PS2_MON3);   
+          when PS2_MON3 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps2.ignd), 32)), PS2_MON4);   
+          when PS2_MON4 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps2.spare), 32)), PS2_MON5);            
+          when PS2_MON5 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps2.sumterm_f), 32)), PS2_MON6);   
+          when PS2_MON6 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps2.error_f), 32)), PS3_DCCT1);
+
+          when PS3_DCCT1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps3.dcct0), 32)), PS3_DCCT2); 
+          when PS3_DCCT2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps3.dcct1), 32)), PS3_MON1); 
+          when PS3_MON1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps3.dacmon), 32)), PS3_MON2);          
+          when PS3_MON2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps3.voltage), 32)), PS3_MON3);   
+          when PS3_MON3 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps3.ignd), 32)), PS3_MON4);   
+          when PS3_MON4 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps3.spare), 32)), PS3_MON5);            
+          when PS3_MON5 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps3.sumterm_f), 32)), PS3_MON6);   
+          when PS3_MON6 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps3.error_f), 32)), PS4_DCCT1);   
+
+          when PS4_DCCT1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps4.dcct0), 32)), PS4_DCCT2); 
+          when PS4_DCCT2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps4.dcct1), 32)), PS4_MON1); 
+          when PS4_MON1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps4.dacmon), 32)), PS4_MON2);          
+          when PS4_MON2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps4.voltage), 32)), PS4_MON3);   
+          when PS4_MON3 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps4.ignd), 32)), PS4_MON4);   
+          when PS4_MON4 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps4.spare), 32)), PS4_MON5);            
+          when PS4_MON5 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps4.sumterm_f), 32)), PS4_MON6);   
+          when PS4_MON6 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps4.error_f), 32)), WRD35);
+
+          when WRD35 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"35", WRD36);
+          when WRD36 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"36", WRD37);
+          when WRD37 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"37", WRD38);
+          when WRD38 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"38", WRD39); 
+          when WRD39 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"39", WRD40);
+          when WRD40 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"40", WRD41);
+          when WRD41 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"41", WRD42);
+          when WRD42 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"42", WRD43);         
+          when WRD43 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"43", WRD44);
+          when WRD44 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"44", WRD45);
+          when WRD45 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"45", WRD46);
+          when WRD46 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"46", WRD47); 
+          when WRD47 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"47", WRD48);
+          when WRD48 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"48", WRD49);
+          when WRD49 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"49", WRD50);
+          when WRD50 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"50", WRD51);           
+
+          when WRD51 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"51", WRD52);
+          when WRD52 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"52", WRD53); 
+          when WRD53 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"53", WRD54);
+          when WRD54 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"54", WRD55);
+          when WRD55 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"55", WRD56);
+          when WRD56 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"56", WRD57);         
+          when WRD57 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"57", WRD58);
+          when WRD58 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"58", WRD59);
+          when WRD59 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"59", WRD60);
+          when WRD60 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"60", WRD61); 
+          when WRD61 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"61", WRD62);
+          when WRD62 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"62", WRD63);
+          when WRD63 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, 32d"63", WRDLAST);
+      
+                       
+            --test case, to send counting pattern                                                   
+--          when DATA =>
+--              if (s_axi4_s2m.wready = '1') then
+--                cnt_enable <= '1';
+--                s_axi4_m2s.wvalid <= '1';
+--                s_axi4_m2s.wdata <= std_logic_vector(wordnum);
+--                wordnum <= wordnum + 1;
+--                if wordnum = BURST_LEN-1 then
+--                  state <= WRDLAST;
+--                end if;
+--              else 
+--                axi_notrdy <= '1';
+--              end if;
 
     
           when WRDLAST =>
-            cnt_enable <= '0'; 
             if (s_axi4_s2m.wready = '1') then
               s_axi4_m2s.wvalid <= '1';
               s_axi4_m2s.wlast <= '1';
@@ -205,7 +251,6 @@ process(clk)
                    addr_base <= DDR_BASE_ADDR;
                 end if;
                 s_axi4_m2s.bready <= '0';
-                cnt_enable <= '0';
                 state <= idle;
               end if;
               
