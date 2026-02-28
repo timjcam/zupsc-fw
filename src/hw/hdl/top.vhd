@@ -85,14 +85,16 @@ end top;
 architecture behv of top is
 
    signal pl_reset              : std_logic;
-   signal pl_resetn             : std_logic_vector(0 downto 0);
+   signal pl_resetn             : std_logic;
    signal pl_clk0               : std_logic;
  
    signal gtx_gige_refclk       : std_logic;
    signal gtx_evr_refclk        : std_logic;
    
-   signal tenkhz_trig           : std_logic; 
-   signal tenkhz_freq           : std_logic_vector(31 downto 0);  
+   
+   signal acq_trig              : std_logic; 
+   signal acq_freq              : std_logic_vector(31 downto 0);  
+   signal tenkhz_trig           : std_logic;
    signal adc_done              : std_logic;   
  
    signal m_axi4_m2s            : t_pl_regs_m2s;
@@ -192,7 +194,7 @@ fp_out(2) <= '0';
 fp_out(1) <= tenkhz_trig;
 fp_out(0) <= pl_clk0;
 
-pl_reset <= not pl_resetn(0); 
+pl_reset <= not pl_resetn; 
 
 
 
@@ -217,7 +219,7 @@ read_dcct_adcs: entity work.DCCT_ADC_module
   port map(
     clk => pl_clk0, 
     reset => pl_reset, 
-    start => tenkhz_trig,  
+    start => acq_trig, --tenkhz_trig,  
     dcct_params => dcct_params,
     dcct_out => dcct_adcs, 
     sdi => dcct_adc_sdo, 
@@ -249,7 +251,7 @@ write_dacs: entity work.dac_ctrlr
   port map(
     clk => pl_clk0,  
     reset => pl_reset, 
-    tenkhz_trig => tenkhz_trig,
+    tenkhz_trig => acq_trig, --tenkhz_trig,
     dcct_adcs => dcct_adcs,  
     pid_cntrl => pid_cntrl,
     pid_stat => pid_stat,      
@@ -302,7 +304,8 @@ sroc_gen: entity work.tenkhz_gen
     evr_trigs => evr_trigs,
     evr_params => evr_params,
     flt_10kHz => open,  
-    tenkhz_freq => tenkhz_freq,
+    acq_freq => acq_freq,
+    acq_trig => acq_trig,
 	tenkhz_trig => tenkhz_trig
     ); 
     
@@ -362,7 +365,7 @@ ps_regs: entity work.ps_io
     pid_stat => pid_stat,    
     fofb_params => fofb_params,
 	fofb_stat => fofb_stat,
-	tenkhz_freq => tenkhz_freq,
+	tenkhz_freq => acq_freq,
     ioc_access_led => ioc_access_led,
     tenhz_datasend_led => tenhz_datasend_led               
   );

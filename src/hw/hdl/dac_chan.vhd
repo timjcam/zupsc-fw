@@ -102,6 +102,8 @@ begin
             when "10" =>
                dac_setpt_raw <= fofb_dac_setpt;
             when "11" =>
+               dac_setpt_raw <= dac_cntrl.setpoint;
+            when others =>
                dac_setpt_raw <= dac_cntrl.setpoint; 
           end case;   
         end if;

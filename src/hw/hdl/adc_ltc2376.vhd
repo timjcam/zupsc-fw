@@ -89,6 +89,7 @@ begin
       dcct1 <= 20d"0";
       data_rdy  <= '0';
       cnv <= '0';
+      sclk <= '0';
       start_lat <= '0';
       state <= IDLE;      
     else 

@@ -422,7 +422,7 @@ component system is
   port (
        
     pl_clk0 : out STD_LOGIC;
-    pl_resetn : out STD_LOGIC_VECTOR(0 downto 0);
+    pl_resetn : out STD_LOGIC;
 
     m_axi_awaddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
     m_axi_awprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
@@ -570,116 +570,8 @@ port
      GT0_QPLLOUTREFCLK_IN : in std_logic
 
 );
-
 end component;  
   
-  
-component gige_pcs_pma_rx is
-generic (
-    EXAMPLE_SIMULATION        : in integer := 01
-          );
-  port (
-    gtrefclk_p : in  std_logic;                         
-    gtrefclk_n : in  std_logic;                         
-    gtrefclk_out : out std_logic;                         
-    gtrefclk_bufg_out : out std_logic; 
-    txp : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
-    txn : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
-    rxp : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
-    rxn : in std_logic;                     -- Differential -ve for serial reception from PMD to PMA.
-    userclk_out : out std_logic;                        
-    userclk2_out : out std_logic;                        
-    rxuserclk_out : out std_logic;                        
-    rxuserclk2_out : out std_logic;                        
-    pma_reset_out : out std_logic;                           -- transceiver PMA reset signal
-    mmcm_locked_out : out std_logic;                           -- MMCM Locked
-    resetdone : out std_logic;
-    independent_clock_bufg : in std_logic;                 
-    gmii_txd : in std_logic_vector(7 downto 0);  -- Transmit data from client MAC.
-    gmii_tx_en : in std_logic;                     -- Transmit control signal from client MAC.
-    gmii_tx_er : in std_logic;                     -- Transmit control signal from client MAC.
-    gmii_rxd : out std_logic_vector(7 downto 0); -- Received Data to client MAC.
-    gmii_rx_dv : out std_logic;                    -- Received control signal to client MAC.
-    gmii_rx_er : out std_logic;                    -- Received control signal to client MAC.
-    gmii_isolate : out std_logic;                    -- Tristate control to electrically isolate GMII.
-    configuration_vector : in std_logic_vector(4 downto 0);  -- Alternative to MDIO interface.
-    an_interrupt : out std_logic;                    -- Interrupt to processor to signal that Auto-Negotiation has completed
-    an_adv_config_vector : in std_logic_vector(15 downto 0); -- Alternate interface to program REG4 (AN ADV)
-    an_restart_config : in std_logic;                     -- Alternate signal to modify AN restart bit in REG0
-    status_vector : out std_logic_vector(15 downto 0); -- Core status.
-    reset : in std_logic;                     -- Asynchronous reset for entire core.
-    signal_detect : in std_logic;                      -- Input from PMD to indicate presence of optical input.
-    gt0_qplloutclk_out : out std_logic;
-    gt0_qplloutrefclk_out : out std_logic
-   );
-end component;  
-  
-
-component gige_pcs_pma_tx is
-  generic
-(
-    EXAMPLE_SIMULATION                      : integer   := 0
-);
-      port(
-      -- Transceiver Interface
-      ---------------------
-
-
-      gtrefclk                 : in  std_logic;                           -- Very high quality clock for GT transceiver.
-      gtrefclk_bufg            : in  std_logic;
-      
-      txp                  : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
-      txn                  : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
-      rxp                  : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
-      rxn                  : in std_logic;                     -- Differential -ve for serial reception from PMD to PMA.
-      resetdone                : out std_logic;                           -- The GT transceiver has completed its reset cycle
-      cplllock                : out std_logic;                           -- The GT transceiver has completed its reset cycle
-      mmcm_reset              : out std_logic;         
-      txoutclk                 : out std_logic;                     
-      rxoutclk                 : out std_logic;                     
-      userclk                  : in  std_logic;                     
-      userclk2                 : in  std_logic;                     
-      rxuserclk                  : in  std_logic;                   
-      rxuserclk2                 : in  std_logic;                   
-      pma_reset                : in  std_logic;                           -- transceiver PMA reset signal
-      mmcm_locked              : in  std_logic;                           -- MMCM Locked
-      independent_clock_bufg : in std_logic;                   
-
-      -- GMII Interface
-      -----------------
-      gmii_txd             : in std_logic_vector(7 downto 0);  -- Transmit data from client MAC.
-      gmii_tx_en           : in std_logic;                     -- Transmit control signal from client MAC.
-      gmii_tx_er           : in std_logic;                     -- Transmit control signal from client MAC.
-      gmii_rxd             : out std_logic_vector(7 downto 0); -- Received Data to client MAC.
-      gmii_rx_dv           : out std_logic;                    -- Received control signal to client MAC.
-      gmii_rx_er           : out std_logic;                    -- Received control signal to client MAC.
-      gmii_isolate         : out std_logic;                    -- Tristate control to electrically isolate GMII.
-
-      -- Management: Alternative to MDIO Interface
-      --------------------------------------------
-      configuration_vector : in std_logic_vector(4 downto 0);  -- Alternative to MDIO interface.
-
-
-      an_interrupt         : out std_logic;                    -- Interrupt to processor to signal that Auto-Negotiation has completed
-      an_adv_config_vector : in std_logic_vector(15 downto 0); -- Alternate interface to program REG4 (AN ADV)
-      an_restart_config    : in std_logic;                     -- Alternate signal to modify AN restart bit in REG0
-
-
-      -- General IO's
-      ---------------
-      status_vector        : out std_logic_vector(15 downto 0); -- Core status.
-      reset                : in std_logic;                     -- Asynchronous reset for entire core.
-     
-      signal_detect         : in std_logic;                      -- Input from PMD to indicate presence of optical input.
-      gt0_qplloutclk_in      : in  std_logic;
-      gt0_qplloutrefclk_in   : in  std_logic
-
-      );
-end component;
-
-
-
-
   
 
 component dac_dpram IS
