@@ -30,7 +30,8 @@ proc setSources {} {
 
   lappend Sources {"../hdl/dcct_adc_module.vhd" "VHDL 2008"} 
   lappend Sources {"../hdl/adc_ltc2376.vhd"  "VHDL 2008"}
-  lappend Sources {"../hdl/dcct_gainoffset.vhd" "VHDL 2008"}   
+  lappend Sources {"../hdl/dcct_gainoffset.vhd" "VHDL 2008"}  
+  lappend Sources {"../hdl/moving_ave.vhd" "VHDL 2008"} 
    
   lappend Sources {"../hdl/adc_8ch_module.vhd" "VHDL 2008"} 
   lappend Sources {"../hdl/adc_ads8568_intf.vhd" "VHDL 2008"} 

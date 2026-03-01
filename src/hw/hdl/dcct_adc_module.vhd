@@ -26,8 +26,10 @@ architecture arch of dcct_adc_module is
 
   type t_dcct is array(0 to 7) of signed(19 downto 0);
   signal dcct : t_dcct;
+  signal dcct_ave : t_dcct;
 
   signal conv_done : std_logic; 
+  signal ave_done : std_logic;
 
 
 
@@ -37,8 +39,12 @@ architecture arch of dcct_adc_module is
    attribute mark_debug of cnv  : signal is "true";
    attribute mark_debug of sclk : signal is "true";
    attribute mark_debug of busy: signal is "true";
+   attribute mark_debug of dcct: signal is "true";
+   attribute mark_debug of dcct_ave: signal is "true";
 
---     attribute mark_debug of conv_done: signal is "true";
+  attribute mark_debug of conv_done: signal is "true";
+  attribute mark_debug of ave_done: signal is "true";  
+  attribute mark_debug of done: signal is "true";    
 ----   attribute mark_debug of state: signal is "true";
 
 
@@ -62,14 +68,35 @@ dcct_ch0: entity work.adc_ltc2376
 	data_rdy => conv_done
 );
 	
+moveave_dcct0: entity work.moving_avg_10_signed
+  port map (
+    clk => clk, 
+    reset => reset, 
+    valid_in => conv_done,
+    din => dcct(0), 
+    avg_out => dcct_ave(0), 
+    valid_out => ave_done
+);
+
+moveave_dcct1: entity work.moving_avg_10_signed
+  port map (
+    clk => clk, 
+    reset => reset, 
+    valid_in => conv_done,
+    din => dcct(1), 
+    avg_out => dcct_ave(1), 
+    valid_out => open 
+);	
+	
+	
 		
 gainoff_adc0: entity work.dcct_gainoffset
   port map(
     clk => clk,
     reset => reset,
-    conv_done => conv_done,
- 	dcct0_raw => dcct(0),
-	dcct1_raw => dcct(1), 
+    conv_done => ave_done, --conv_done,
+ 	dcct0_raw => dcct_ave(0),
+	dcct1_raw => dcct_ave(1), 
     dcct_params => dcct_params.ps1,
     dcct_out => dcct_out.ps1,
     done => done
