@@ -148,7 +148,7 @@ void CopyDataChan(float **msg_ptr, volatile u32 *buf_data, u32 numwords, int cha
                 (*msg_ptr)++;
                 **msg_ptr = buf_data[i+1];   //data pt. counter
                 (*msg_ptr)++;
-                **msg_ptr = buf_data[i+2]; //1.0; //(float)(s32)(buf_data[i+2]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT1
+                **msg_ptr = (float)(s32)(buf_data[i+2]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT1
                 (*msg_ptr)++;
                 **msg_ptr = (float)(s32)(buf_data[i+3]) * CONVDACBITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DCCT2
                 (*msg_ptr)++;
@@ -270,7 +270,8 @@ static
 void ReadDMABuf(char *msg, TriggerInfo *trig) {
 
 	u32 BUFSTART = 0x10000000;
-	u32 BUFLEN   = 0x030D4000;
+	//u32 BUFLEN   = 0x030D4000;
+	u32 BUFLEN   = 0x1E848000;
 	u32 const BUFSTEPBYTES  = 0x100; //256 bytes
     u32 const BUFSTEPWORDS = BUFSTEPBYTES/4;
     u32 const WORDSPERSAMPLE = 64;
@@ -342,15 +343,17 @@ s32 SendWfmData(char *msg, TriggerInfo *trig) {
 
     //Temp - Disable writes from AXI Master when reading out.
     //Xil_Out32(XPAR_M_AXI_BASEADDR + DIGOUT_SPARE_REG + 1*CHBASEADDR, 0);
-
+    xil_printf("ReadingDMABuf...\r\n");
 	ReadDMABuf(msg,trig);
+	xil_printf("Done\r\n");
 
     //Temp - Reenable writes from AXI Master when reading out.
     //Xil_Out32(XPAR_M_AXI_BASEADDR + DIGOUT_SPARE_REG + 1*CHBASEADDR, 1);
 
 	hton_conv(msg,MSGWFMLEN);
+    xil_printf("PSC_Send...\r\n");
     psc_send(the_server, trig->msgID, MSGWFMLEN, msg);
-
+    xil_printf("Done\r\n");
     return 0;
 }
 
@@ -369,9 +372,10 @@ void ProcessTrigger(TriggerInfo *trig, const char *trig_name) {
     }
 
     if (trig->active == 1) {
-        if (trig->postdlycnt < (trig->posttrigpts/1000)) {
+    	//this iterates every 100ms, so wait 0.5 seconds
+        if (trig->postdlycnt < (trig->posttrigpts/10000)) {
             (trig->postdlycnt)++;
-            //xil_printf("Post Trig Cnt = %d\r\n",trig->postdlycnt);
+            xil_printf("Post Trig Cnt = %d\r\n",trig->postdlycnt);
         } else {
             trig->sendbuf = 1;
             //xil_printf("\r\nSend Buf...\r\n");
@@ -544,8 +548,11 @@ void snapshot_push(void *unused)
 
         // Scan through all the trigger types, send waveform if there was a trigger
 		for (int i = 0; i < 4; ++i) {
-		    if (trig.usr[i].sendbuf == 1)
+		    if (trig.usr[i].sendbuf == 1) {
+		    	xil_printf("Sending Snapshot...\r\n");
 		        SendWfmData(msgUsr_buf[i], &trig.usr[i]);
+		        xil_printf("Done Sending...\r\n");
+		    }
 		    if (trig.flt[i].sendbuf == 1)
 		        SendWfmData(msgFlt_buf[i], &trig.flt[i]);
 		    if (trig.err[i].sendbuf == 1)

@@ -63,16 +63,16 @@ architecture arch of dac_chan is
 
 
    --debug signals (connect to ila)
-   attribute mark_debug                 : string;
-   attribute mark_debug of dac_data: signal is "true";
-   attribute mark_debug of ramp_dac_setpt: signal is "true";
-   attribute mark_debug of smooth_dac_setpt: signal is "true";
-   attribute mark_debug of dac_setpt_raw: signal is "true";   
-   attribute mark_debug of dac_setpt: signal is "true";
-   attribute mark_debug of ramp_active: signal is "true";  
-   attribute mark_debug of smooth_active: signal is "true";  
-   attribute mark_debug of fofb_dac_setpt: signal is "true"; 
-   attribute mark_debug of dac_cntrl: signal is "true";
+--   attribute mark_debug                 : string;
+--   attribute mark_debug of dac_data: signal is "true";
+--   attribute mark_debug of ramp_dac_setpt: signal is "true";
+--   attribute mark_debug of smooth_dac_setpt: signal is "true";
+--   attribute mark_debug of dac_setpt_raw: signal is "true";   
+--   attribute mark_debug of dac_setpt: signal is "true";
+--   attribute mark_debug of ramp_active: signal is "true";  
+--   attribute mark_debug of smooth_active: signal is "true";  
+--   attribute mark_debug of fofb_dac_setpt: signal is "true"; 
+--   attribute mark_debug of dac_cntrl: signal is "true";
 
 
 begin
@@ -165,7 +165,7 @@ port map(
     pid_cntrl => pid_cntrl,
 	pid_stat => pid_stat,   
     setpoint => dac_setpt_gainoff,
-    feedback => dcct_adcs.dcct0, 
+    feedback => dcct_adcs.dcct1, 
     control_out => dac_setpt_digital,
     done => open
 );  

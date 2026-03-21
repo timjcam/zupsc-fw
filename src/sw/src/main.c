@@ -3,7 +3,6 @@
 
 
 #include <FreeRTOS.h>
-//#include <xil_cache_l.h>
 #include <xil_io.h>
 
 #include <lwip/init.h>
@@ -24,6 +23,9 @@
 #include "xuartps.h"
 
 #include "zupsc.h"
+
+#define SYSMON_DEVICE_ID XPAR_XSYSMONPSU_0_DEVICE_ID
+
 
 psc_key* the_server;
 
@@ -154,7 +156,31 @@ void print_firmware_version()
 }
 
 
+s32 init_sysmon() {
 
+	s32 Status;
+    XSysMonPsu_Config *SysMonConfig;
+
+	// Initialize the SYSMON driver
+	SysMonConfig = XSysMonPsu_LookupConfig(SYSMON_DEVICE_ID);
+	if (SysMonConfig == NULL) {
+		return XST_FAILURE;
+	}
+
+	Status = XSysMonPsu_CfgInitialize(&SysMonInstance, SysMonConfig, SysMonConfig->BaseAddress);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+	// Self-Test the System Monitor/ADC device
+	Status = XSysMonPsu_SelfTest(&SysMonInstance);
+	if (Status != XST_SUCCESS) {
+		xil_printf("SysMonPsu self-test failed.\n");
+		return XST_FAILURE;
+	}
+
+    return XST_SUCCESS;
+}
 
 
 
@@ -167,21 +193,27 @@ int main(void) {
 
 
 
-    xil_printf("Power Supply Controller\r\n");
+    xil_printf("Power Supply Controller...\r\n");
     print_firmware_version();
 
 
-	Xil_DCacheDisable();
-	Xil_ICacheDisable();
+	//Xil_DCacheDisable();
+	//Xil_ICacheDisable();
 
     //Set 10KHz trigger frequency
     //Step Size = 2^n * fout / fclk
     //          = 2^32 * 9.961722 KHz / 100MHz
     //          = 427852.7
-	Xil_Out32(XPAR_M_AXI_BASEADDR + NCO_STEPSIZE_REG, 427853);
+	//10 KHz
+	//Xil_Out32(XPAR_M_AXI_BASEADDR + NCO_STEPSIZE_REG, 427853);
+	//100 KHz
+	Xil_Out32(XPAR_M_AXI_BASEADDR + NCO_STEPSIZE_REG, 4294967);
 
 
+	xil_printf("Init I2c...\r\n");
 	init_i2c();
+	xil_printf("Init Sysmon...\r\n");
+	init_sysmon();
 	//prog_si570();
 
 

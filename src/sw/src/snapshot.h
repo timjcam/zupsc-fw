@@ -1,6 +1,6 @@
 
 //Waveform Thread: Snapshot Statistics (pointers, etc)
-// Updated at 10Hz, keeps waveform connection alive
+// Updated at 10Hz
 #define MSGWFMSTATS 50
 #define MSGWFMSTATSLEN 500
 

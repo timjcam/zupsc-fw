@@ -94,7 +94,7 @@ architecture behv of top is
    
    signal acq_trig              : std_logic; 
    signal acq_freq              : std_logic_vector(31 downto 0);  
-   signal tenkhz_trig           : std_logic;
+   --signal tenkhz_trig           : std_logic;
    signal adc_done              : std_logic;   
  
    signal m_axi4_m2s            : t_pl_regs_m2s;
@@ -144,9 +144,9 @@ architecture behv of top is
    attribute mark_debug                 : string;
    attribute mark_debug of pl_reset : signal is "true";
    attribute mark_debug of pl_resetn : signal is "true";
-   attribute mark_debug of tenkhz_trig : signal is "true";
 
-   
+
+   attribute mark_debug of acq_trig: signal is "true";
    attribute mark_debug of dcct_adc_cnv  : signal is "true";
    attribute mark_debug of dcct_adc_busy : signal is "true";
    attribute mark_debug of dcct_adc_sck : signal is "true";
@@ -177,7 +177,7 @@ fp_led(0) <= tenhz_datasend_led;
 fp_led(2) <= ioc_access_led;  
 fp_led(4) <= evr_trigs.onehz_trig_stretch; 
 fp_led(6) <= '0';  
-fp_led(1) <= tenkhz_trig; --'0';
+fp_led(1) <= '0'; --'0';
 fp_led(3) <= '0';
 fp_led(5) <= '0';
 fp_led(7) <= '0';
@@ -186,12 +186,12 @@ sfp_led(11 downto 0) <= 12d"0";
 
 dbg(3 downto 0) <= "0000";
 dbg(4) <= pl_clk0;
-dbg(5) <= tenkhz_trig;
+dbg(5) <= acq_trig;
 dbg(19 downto 6) <= (others => '0');
 
 fp_out(3) <= '0';
 fp_out(2) <= '0';
-fp_out(1) <= tenkhz_trig;
+fp_out(1) <= acq_trig; --tenkhz_trig;
 fp_out(0) <= pl_clk0;
 
 pl_reset <= not pl_resetn; 
@@ -235,7 +235,7 @@ read_mon_adcs: entity work.adc_8ch_module
   port map(
     clk => pl_clk0, 
     reset => pl_reset, 
-    start => tenkhz_trig, 
+    start => acq_trig, --tenkhz_trig, 
     mon_params => mon_params,  
     mon_adcs => mon_adcs,
     sdo => mon_adc_sdo,
@@ -269,7 +269,7 @@ fault_gen: entity work.fault_module
   port map(
     clk => pl_clk0,
     reset => pl_reset,
-    tenkhz_trig => tenkhz_trig,
+    tenkhz_trig => acq_trig, --tenkhz_trig,
     fault_params => fault_params,
     dcct_adcs => dcct_adcs,
     mon_adcs => mon_adcs,
@@ -305,8 +305,8 @@ sroc_gen: entity work.tenkhz_gen
     evr_params => evr_params,
     flt_10kHz => open,  
     acq_freq => acq_freq,
-    acq_trig => acq_trig,
-	tenkhz_trig => tenkhz_trig
+    acq_trig => acq_trig
+	--tenkhz_trig => tenkhz_trig
     ); 
     
     
@@ -315,7 +315,7 @@ dig_io: entity work.digio_logic
   port map(
     clk => pl_clk0,
     reset => pl_reset,
-    tenkhz_trig => tenkhz_trig,
+    tenkhz_trig => acq_trig, --tenkhz_trig,
     fault => fault_stat,   
     rcom => dig_out, --rcom
     rsts => dcct_flt & dig_in, --rsts    
@@ -365,7 +365,7 @@ ps_regs: entity work.ps_io
     pid_stat => pid_stat,    
     fofb_params => fofb_params,
 	fofb_stat => fofb_stat,
-	tenkhz_freq => acq_freq,
+	acq_freq => acq_freq,
     ioc_access_led => ioc_access_led,
     tenhz_datasend_led => tenhz_datasend_led               
   );
@@ -376,7 +376,7 @@ adc2ddr : entity work.axi4_write_adc
   port map (
     clk => pl_clk0,
     reset => pl_reset,
-    trigger => tenkhz_trig, -- and dig_cntrl.ps1.spare, 
+    trigger => acq_trig, --tenkhz_trig, -- and dig_cntrl.ps1.spare, 
     s_axi4_m2s => s_axi4_m2s,
     s_axi4_s2m => s_axi4_s2m,
     dcct_adcs => dcct_adcs,

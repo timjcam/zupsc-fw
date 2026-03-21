@@ -43,7 +43,7 @@ entity ps_io is
 	pid_stat           : in t_pid_stat;	
 	fofb_params        : out t_fofb_params;
 	fofb_stat          : in t_fofb_stat;
-	tenkhz_freq        : in std_logic_vector(31 downto 0);
+	acq_freq           : in std_logic_vector(31 downto 0);
 	ioc_access_led     : out std_logic;
 	tenhz_datasend_led : out std_logic
      
@@ -76,9 +76,9 @@ architecture behv of ps_io is
   signal tenhz_datasend  : std_logic;
 
   
-  attribute mark_debug     : string;
+  --attribute mark_debug     : string;
   --attribute mark_debug of dac_cntrl: signal is "true";
-  --attribute mark_debug of inj_trig: signal is "true";
+  --attribute mark_debug of usr_trig: signal is "true";
 --  attribute mark_debug of soft_trig_prev: signal is "true";  
 --  attribute mark_debug of reg_i: signal is "true";
 --  attribute mark_debug of ss_buf_stat: signal is "true";
@@ -104,7 +104,7 @@ evr_params.onehz_eventno <= reg_o.evr_1hz_eventno.val.data;
 evr_params.tenhz_eventno <= reg_o.evr_10hz_eventno.val.data;
 evr_params.tenkhz_eventno <= reg_o.evr_10khz_eventno.val.data;
 evr_params.nco_stepsize <= reg_o.nco_stepsize.val.data;
-reg_i.tenkhz_freq.val.data <= tenkhz_freq;
+reg_i.tenkhz_freq.val.data <= acq_freq;
 reg_i.onehz_freq.val.data <= evr_trigs.onehz_freq;
 
 mon_params.numchan_sel <= reg_o.num_chans.val.data(0);
@@ -124,12 +124,6 @@ fofb_params.ps4_addr <= reg_o.ps4_fofb_addr.val.data;
 reg_i.fofb_packetsrcvd.val.data <= fofb_stat.packets_rcvd;
 reg_i.fofb_command.val.data <= fofb_stat.command;
 reg_i.fofb_nonce.val.data <= fofb_stat.nonce;
-
-
---tenkhz_freq
---onehz_freq
-
-
 
 
 
@@ -611,11 +605,52 @@ reg_i.snapshot_addrptr.val.data <= ss_buf_stat.addr_ptr;
 reg_i.snapshot_totaltrigs.val.data <= ss_buf_stat.tenkhzcnt;
 
 
+
+process (pl_clock)
+begin
+  if rising_edge(pl_clock) then
+
+    -- PS1
+    dac_cntrl.ps1.setpoint_last <= dac_cntrl.ps1.setpoint;
+    if dac_cntrl.ps1.setpoint_last /= dac_cntrl.ps1.setpoint then
+      dac_cntrl.ps1.setpoint_changed <= '1';
+    else
+      dac_cntrl.ps1.setpoint_changed <= '0';
+    end if;
+
+    -- PS2
+    dac_cntrl.ps2.setpoint_last <= dac_cntrl.ps2.setpoint;
+    if dac_cntrl.ps2.setpoint_last /= dac_cntrl.ps2.setpoint then
+      dac_cntrl.ps2.setpoint_changed <= '1';
+    else
+      dac_cntrl.ps2.setpoint_changed <= '0';
+    end if;
+
+    -- PS3
+    dac_cntrl.ps3.setpoint_last <= dac_cntrl.ps3.setpoint;
+    if dac_cntrl.ps3.setpoint_last /= dac_cntrl.ps3.setpoint then
+      dac_cntrl.ps3.setpoint_changed <= '1';
+    else
+      dac_cntrl.ps3.setpoint_changed <= '0';
+    end if;
+
+    -- PS4
+    dac_cntrl.ps4.setpoint_last <= dac_cntrl.ps4.setpoint;
+    if dac_cntrl.ps4.setpoint_last /= dac_cntrl.ps4.setpoint then
+      dac_cntrl.ps4.setpoint_changed <= '1';
+    else
+      dac_cntrl.ps4.setpoint_changed <= '0';
+    end if;
+
+  end if;
+end process;
+
+
 -- user issues a soft trigger, latch the current snapshot buffer address
-usr_trig(0) <= reg_o.softtrig.val.data(0) or dac_cntrl.ps1.ramprun;
-usr_trig(1) <= reg_o.softtrig.val.data(1) or dac_cntrl.ps2.ramprun;
-usr_trig(2) <= reg_o.softtrig.val.data(2) or dac_cntrl.ps3.ramprun;
-usr_trig(3) <= reg_o.softtrig.val.data(3) or dac_cntrl.ps4.ramprun;
+usr_trig(0) <= reg_o.softtrig.val.data(0) or dac_cntrl.ps1.setpoint_changed;
+usr_trig(1) <= reg_o.softtrig.val.data(1) or dac_cntrl.ps2.setpoint_changed;
+usr_trig(2) <= reg_o.softtrig.val.data(2) or dac_cntrl.ps3.setpoint_changed;
+usr_trig(3) <= reg_o.softtrig.val.data(3) or dac_cntrl.ps4.setpoint_changed;
 flt_trig(0) <= reg_o.testtrig.val.data(0) or fault_stat.ps1.flt_trig;
 flt_trig(1) <= reg_o.testtrig.val.data(1) or fault_stat.ps2.flt_trig;
 flt_trig(2) <= reg_o.testtrig.val.data(2) or fault_stat.ps3.flt_trig;

@@ -49,7 +49,7 @@ end entity;
 architecture arch of ADC_ADS8568_intf is
 type state is (IDLE,SET_CNV,WAIT_FOR_NOT_BUSY,WAIT_FOR_MSB_VALID,CLOCK_MSB,SCLK_HI,SCLK_LO,DONE);
 constant CNV_PULSE : natural := 12;
-constant CNV_WIDTH : natural := 400;
+constant CNV_WIDTH : natural := 180;
 constant WAIT_MSB : natural := 6;
 signal present_state : state;
 signal shift_reg   : std_logic_vector(DATA_BITS -1 downto 0);

@@ -543,7 +543,7 @@ void chan_settings(u32 chan, void *msg, u32 msglen) {
 
         case IGND_THRESH_MSG:
    	        printf("Setting Ignd Threshold CH%d :   Value=%f\r\n",(int)chan,data.f);
-   	        scaled_val = data.f*CONVVOLTSTO16BITS / scalefactors[chan-1].error;
+   	        scaled_val = data.f*CONVVOLTSTO16BITS / scalefactors[chan-1].ignd;
    	        if (scaled_val >= 32767) scaled_val = 32767;
    	        Xil_Out32(XPAR_M_AXI_BASEADDR + IGND_THRESH_REG + chan*CHBASEADDR, scaled_val);
    	        break;

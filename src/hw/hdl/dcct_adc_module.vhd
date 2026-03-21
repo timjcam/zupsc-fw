@@ -34,18 +34,18 @@ architecture arch of dcct_adc_module is
 
 
 --debug signals (connect to ila)
-     attribute mark_debug                 : string;
-   attribute mark_debug of sdi  : signal is "true";
-   attribute mark_debug of cnv  : signal is "true";
-   attribute mark_debug of sclk : signal is "true";
-   attribute mark_debug of busy: signal is "true";
-   attribute mark_debug of dcct: signal is "true";
-   attribute mark_debug of dcct_ave: signal is "true";
+--   attribute mark_debug                 : string;
+--   attribute mark_debug of sdi  : signal is "true";
+--   attribute mark_debug of cnv  : signal is "true";
+--   attribute mark_debug of sclk : signal is "true";
+--   attribute mark_debug of busy: signal is "true";
+--   attribute mark_debug of dcct: signal is "true";
+--   attribute mark_debug of dcct_ave: signal is "true";
 
-  attribute mark_debug of conv_done: signal is "true";
-  attribute mark_debug of ave_done: signal is "true";  
-  attribute mark_debug of done: signal is "true";    
-----   attribute mark_debug of state: signal is "true";
+--   attribute mark_debug of conv_done: signal is "true";
+--   attribute mark_debug of ave_done: signal is "true";  
+--   attribute mark_debug of done: signal is "true";    
+--   attribute mark_debug of state: signal is "true";
 
 
 
@@ -94,9 +94,9 @@ gainoff_adc0: entity work.dcct_gainoffset
   port map(
     clk => clk,
     reset => reset,
-    conv_done => ave_done, --conv_done,
- 	dcct0_raw => dcct_ave(0),
-	dcct1_raw => dcct_ave(1), 
+    conv_done => conv_done, --ave_done, --conv_done,
+ 	dcct0_raw => dcct(0), --dcct_ave(0),
+	dcct1_raw => dcct(1), --dcct_ave(1), 
     dcct_params => dcct_params.ps1,
     dcct_out => dcct_out.ps1,
     done => done

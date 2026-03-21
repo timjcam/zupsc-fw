@@ -55,22 +55,20 @@ signal mon_adcs_in      : t_mon_adcs;
 
    --debug signals (connect to ila)
    attribute mark_debug                 : string;
---   attribute mark_debug of ADC8C_CONV123: signal is "true";
---   attribute mark_debug of ADC8C_FS123: signal is "true";
---   attribute mark_debug of ADC8C_SCK123: signal is "true";
---   attribute mark_debug of ADC8C_SDO: signal is "true";
---   attribute mark_debug of ADC_8CH_ADC1: signal is "true";
---   attribute mark_debug of ADC_8CH_ADC2: signal is "true";
---   attribute mark_debug of ADC_8CH_ADC3: signal is "true";       
-   --attribute mark_debug of mon_adcs_in: signal is "true";
-   attribute mark_debug of adc0 : signal is "true";
-   attribute mark_debug of adc1 : signal is "true";
-   attribute mark_debug of adc2 : signal is "true";
-   attribute mark_debug of adc3 : signal is "true";      
-   attribute mark_debug of adc4 : signal is "true";
-   attribute mark_debug of adc5 : signal is "true";
-   attribute mark_debug of adc6 : signal is "true";
-   attribute mark_debug of adc7 : signal is "true";  
+--   attribute mark_debug of start: signal is "true";
+--   attribute mark_debug of cnv: signal is "true";
+--   attribute mark_debug of fs: signal is "true";
+--   attribute mark_debug of sck: signal is "true";
+--   attribute mark_debug of sdo: signal is "true";
+
+--   attribute mark_debug of adc0 : signal is "true";
+--   attribute mark_debug of adc1 : signal is "true";
+--   attribute mark_debug of adc2 : signal is "true";
+--   attribute mark_debug of adc3 : signal is "true";      
+--   attribute mark_debug of adc4 : signal is "true";
+--   attribute mark_debug of adc5 : signal is "true";
+--   attribute mark_debug of adc6 : signal is "true";
+--   attribute mark_debug of adc7 : signal is "true";  
 
 
 begin
@@ -80,7 +78,7 @@ rst <= "0000";
 
 
 ch0_adc_8ch: entity work.adc_ads8568_intf
-  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 5)
+  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 3)
   port map(
 	clk => clk,
 	reset => reset,
@@ -97,7 +95,7 @@ ch0_adc_8ch: entity work.adc_ads8568_intf
 
 
 ch1_adc_8ch: entity work.adc_ads8568_intf
-  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 5)
+  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 3)
   port map(
 	clk => clk,
 	reset => reset,
@@ -114,7 +112,7 @@ ch1_adc_8ch: entity work.adc_ads8568_intf
 
 
 ch2_adc_8ch: entity work.adc_ads8568_intf
-  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 5)
+  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 3)
   port map(
 	clk => clk,
 	reset => reset,
@@ -130,7 +128,7 @@ ch2_adc_8ch: entity work.adc_ads8568_intf
 );
 
 ch3_adc_8ch: entity work.adc_ads8568_intf
-  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 5)
+  generic map(DATA_BITS   => 128,	SPI_CLK_DIV => 3)
   port map(
 	clk => clk,
 	reset => reset,

@@ -31,7 +31,8 @@ architecture rtl of axi4_write_adc is
    -- Made BURST_LEN 64, so always aligns with 4k cacheline boundary.
    constant BURST_LEN : integer := 64;
    constant DDR_BASE_ADDR   : std_logic_vector(31 downto 0) := x"1000_0000";
-   constant DDR_MAX_ADDR    : std_logic_vector(31 downto 0) := x"130D_4000";  --10KHz * 64beats*4bytes/beat * 20 sec 
+   --constant DDR_MAX_ADDR    : std_logic_vector(31 downto 0) := x"130D_4000";  --10KHz * 64beats*4bytes/beat * 20 sec 
+   constant DDR_MAX_ADDR    : std_logic_vector(31 downto 0) := x"2E84_8000";  --100KHz * 64beats*4bytes/beat * 20 sec 
    
    type  state_type is (IDLE, ADDRESS, HDR, CNT, 
                         PS1_DCCT1, PS1_DCCT2, PS1_MON1, PS1_MON2, PS1_MON3, PS1_MON4, PS1_MON5, PS1_MON6, 

@@ -42,17 +42,17 @@ architecture behv of pid_fp_controller is
   signal iterm_valid     : std_logic;
   
   
-  attribute mark_debug     : string; 
-  attribute mark_debug of setpoint: signal is "true";
-  attribute mark_debug of feedback: signal is "true";
-  attribute mark_debug of start: signal is "true";
-  attribute mark_debug of pid_cntrl: signal is "true";
-  attribute mark_debug of setpt_f: signal is "true";
-  attribute mark_debug of fdbk_f: signal is "true";
-  attribute mark_debug of pterm_f: signal is "true";  
-  attribute mark_debug of err_f: signal is "true";   
-  attribute mark_debug of setptout_fp: signal is "true";
-  attribute mark_debug of control_out: signal is "true";
+--  attribute mark_debug     : string; 
+--  attribute mark_debug of setpoint: signal is "true";
+--  attribute mark_debug of feedback: signal is "true";
+--  attribute mark_debug of start: signal is "true";
+--  attribute mark_debug of pid_cntrl: signal is "true";
+--  attribute mark_debug of setpt_f: signal is "true";
+--  attribute mark_debug of fdbk_f: signal is "true";
+--  attribute mark_debug of pterm_f: signal is "true";  
+--  attribute mark_debug of err_f: signal is "true";   
+--  attribute mark_debug of setptout_fp: signal is "true";
+--  attribute mark_debug of control_out: signal is "true";
 
 
 
