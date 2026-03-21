@@ -90,8 +90,8 @@ begin
         pid_cntrl.kd <= x"3DCCCCCD";  -- 0.1
 
         -- Integral clamp: ±50.0
-        pid_cntrl.ilimit_pos <= x"42480000"; -- +50.0
-        pid_cntrl.ilimit_neg <= x"C2480000"; -- -50.0
+        pid_cntrl.ilimit <= x"42480000"; -- +50.0
+        --pid_cntrl.ilimit_neg <= x"C2480000"; -- -50.0
 
         -- Generate tenkhz_trig every 100 us (10 kHz)
         for i in 0 to 1000 loop
