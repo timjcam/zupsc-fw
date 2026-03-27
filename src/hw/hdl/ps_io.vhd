@@ -183,7 +183,8 @@ pid_cntrl.ps1.kd <= reg_o.ps1_kd.val.data;
 pid_cntrl.ps1.park <= reg_o.ps1_park.val.data(0);
 pid_cntrl.ps1.digpid_enb <= reg_o.ps1_digpid_enb.val.data(0);
 pid_cntrl.ps1.ireset <= reg_o.ps1_digpid_ireset.val.data(0);
-pid_cntrl.ps1.ilimit <= reg_o.ps1_iterm_limit.val.data;
+pid_cntrl.ps1.ilimit_pos <= reg_o.ps1_iterm_limit.val.data;
+pid_cntrl.ps1.ilimit_neg <= x"80000000" or reg_o.ps1_iterm_limit.val.data;  --flip sign
 
 reg_i.ps1_setpt_in.val.data <= pid_stat.ps1.setptin_f;
 reg_i.ps1_feedback.val.data <= pid_stat.ps1.fdbk_f;

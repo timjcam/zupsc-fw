@@ -118,7 +118,8 @@ type t_pid_cntrl_onech is record
   ki             : std_logic_vector(31 downto 0);
   kd             : std_logic_vector(31 downto 0);
   ireset         : std_logic;
-  ilimit         : std_logic_vector(31 downto 0);
+  ilimit_pos     : std_logic_vector(31 downto 0);
+  ilimit_neg     : std_logic_vector(31 downto 0);
   park           : std_logic;
   digpid_enb     : std_logic;
 end record;
