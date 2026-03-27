@@ -302,7 +302,9 @@ pid_cntrl.ps2.kd <= reg_o.ps2_kd.val.data;
 pid_cntrl.ps2.park <= reg_o.ps2_park.val.data(0);
 pid_cntrl.ps2.digpid_enb <= reg_o.ps2_digpid_enb.val.data(0);
 pid_cntrl.ps2.ireset <= reg_o.ps2_digpid_ireset.val.data(0);
-pid_cntrl.ps2.ilimit <= reg_o.ps2_iterm_limit.val.data;
+pid_cntrl.ps2.ilimit_pos <= reg_o.ps2_iterm_limit.val.data;
+pid_cntrl.ps2.ilimit_neg <= x"80000000" or reg_o.ps2_iterm_limit.val.data;
+
 
 reg_i.ps2_setpt_in.val.data <= pid_stat.ps2.setptin_f;
 reg_i.ps2_feedback.val.data <= pid_stat.ps2.fdbk_f;
@@ -419,7 +421,8 @@ pid_cntrl.ps3.kd <= reg_o.ps3_kd.val.data;
 pid_cntrl.ps3.park <= reg_o.ps3_park.val.data(0);
 pid_cntrl.ps3.digpid_enb <= reg_o.ps3_digpid_enb.val.data(0);
 pid_cntrl.ps3.ireset <= reg_o.ps3_digpid_ireset.val.data(0);
-pid_cntrl.ps3.ilimit <= reg_o.ps3_iterm_limit.val.data;
+pid_cntrl.ps3.ilimit_pos <= reg_o.ps3_iterm_limit.val.data;
+pid_cntrl.ps3.ilimit_neg <= x"80000000" or reg_o.ps3_iterm_limit.val.data;
 
 reg_i.ps3_setpt_in.val.data <= pid_stat.ps3.setptin_f;
 reg_i.ps3_feedback.val.data <= pid_stat.ps3.fdbk_f;
@@ -537,7 +540,8 @@ pid_cntrl.ps4.kd <= reg_o.ps4_kd.val.data;
 pid_cntrl.ps4.park <= reg_o.ps4_park.val.data(0);
 pid_cntrl.ps4.digpid_enb <= reg_o.ps4_digpid_enb.val.data(0);
 pid_cntrl.ps4.ireset <= reg_o.ps4_digpid_ireset.val.data(0);
-pid_cntrl.ps4.ilimit <= reg_o.ps4_iterm_limit.val.data;
+pid_cntrl.ps4.ilimit_pos <= reg_o.ps4_iterm_limit.val.data;
+pid_cntrl.ps4.ilimit_neg <= x"80000000" or reg_o.ps4_iterm_limit.val.data;
 
 reg_i.ps4_setpt_in.val.data <= pid_stat.ps4.setptin_f;
 reg_i.ps4_feedback.val.data <= pid_stat.ps4.fdbk_f;

@@ -125,6 +125,10 @@ proc doOnCreate {} {
   ::fwfwk::printCBM "TclPath = ${TclPath}"
   ::fwfwk::printCBM "SrcPath = ${::fwfwk::SrcPath}"
   
+  
+  set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/top_tb.sv] 
+  set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/top_tb.sv] 
+  
   set_property used_in_synthesis false [get_files ${::fwfwk::SrcPath}/hw/hdl/pid_fp_controller_tb.vhd] 
   set_property used_in_simulation true [get_files ${::fwfwk::SrcPath}/hw/hdl/pid_fp_controller_tb.vhd] 
   
