@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
+-- This is the core floating point package
+use ieee.float_pkg.all;
 
 library xil_defaultlib;
 use xil_defaultlib.psc_pkg.ALL;
@@ -154,9 +156,11 @@ begin
 
     -- Set gains: IEEE754 single-precision
     --pid_cntrl.kp <= x"3F800000";  -- 1.0
-    pid_cntrl.kp <= x"3DCCCCCD";  -- 0.1
+    pid_cntrl.kp <= std_logic_vector(to_float(0.1,8,23)); 
+    --x"3DCCCCCD";  -- 0.1
     --pid_cntrl.ki <= x"3C23D70A";  -- 0.01
-    pid_cntrl.ki <= x"3DCCCCCD";  -- 0.1
+    pid_cntrl.ki <= std_logic_vector(to_float(0.1,8,23)); 
+    --x"3DCCCCCD";  -- 0.1
     --pid_cntrl.kd <= x"3DCCCCCD";  -- 0.1
 
     -- Integral clamp: +/-1.0
