@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 use ieee.math_real.all;
 -- This is the core floating point package
 use ieee.float_pkg.all;
+use ieee.math_real.all; -- Required for cos and MATH_PI
 
 library xil_defaultlib;
 use xil_defaultlib.psc_pkg.ALL;
@@ -35,6 +36,7 @@ architecture sim of pid_fp_controller_tb is
   signal done          : std_logic;
   signal setpoint      : signed(19 downto 0);
   signal feedback      : signed(19 downto 0);
+
 
   signal pid_cntrl     : t_pid_cntrl_onech;
   signal pid_stat      : t_pid_stat_onech;
@@ -73,6 +75,17 @@ architecture sim of pid_fp_controller_tb is
   --------------------------------------------------------------------------
   signal plant_current_a : real := 0.0;
   signal plant_voltage_v : real := 0.0;
+  
+  signal v_curr_val :   real := 0.0;
+  signal setpoint_start:   real := 0.0; 
+  signal setpoint_end: real := 0.0;
+  signal setpoint_start_prev : real := 0.0;  
+  
+    -- Internal Counters
+  signal tick_count    : integer := 0;
+  signal time_ns       : real := 0.0;
+  signal ramp_active   : boolean := true;
+
 
   --------------------------------------------------------------------------
   -- Helper functions
@@ -101,6 +114,33 @@ architecture sim of pid_fp_controller_tb is
     xi := clamp_int(xi, S20_MIN, S20_MAX);
     return to_signed(xi, 20);
   end function;
+
+
+-- Inside your architecture or a package
+function generate_cosine_ramp (
+    start_lvl : real;
+    end_lvl   : real;
+    current_t : real;  -- Current time in the ramp (0 to duration)
+    duration  : real   -- Total time for the ramp to complete
+) return real is
+    variable normalized_t : real;
+    variable ramp_val     : real;
+begin
+    -- Clamp time to the duration limits
+    if current_t <= 0.0 then
+        return start_lvl;
+    elsif current_t >= duration then
+        return end_lvl;
+    end if;
+
+    -- Normalized time goes from 0.0 to 1.0
+    normalized_t := current_t / duration;
+    
+    -- Half-cosine interpolation formula
+    ramp_val := start_lvl + (end_lvl - start_lvl) * (1.0 - cos(MATH_PI * normalized_t)) / 2.0;
+    
+    return ramp_val;
+end function;
 
 begin
 
@@ -152,20 +192,21 @@ begin
   stimulus: process
   begin
     -- Initialize inputs
-    setpoint <= to_signed(0, 20);
+    --setpoint <= to_signed(0, 20);
 
     -- Set gains: IEEE754 single-precision
     --pid_cntrl.kp <= x"3F800000";  -- 1.0
-    pid_cntrl.kp <= std_logic_vector(to_float(0.1,8,23)); 
+  --  pid_cntrl.kp <= std_logic_vector(to_float(0.000002,8,23)); 
+  pid_cntrl.kp <= std_logic_vector(to_float(0.4,8,23)); 
     --x"3DCCCCCD";  -- 0.1
     --pid_cntrl.ki <= x"3C23D70A";  -- 0.01
-    pid_cntrl.ki <= std_logic_vector(to_float(0.1,8,23)); 
+    pid_cntrl.ki <= std_logic_vector(to_float(0.7,8,23)); 
     --x"3DCCCCCD";  -- 0.1
     --pid_cntrl.kd <= x"3DCCCCCD";  -- 0.1
 
     -- Integral clamp: +/-1.0
-    pid_cntrl.ilimit_pos <= x"3F800000";
-    pid_cntrl.ilimit_neg <= x"BF800000";
+    pid_cntrl.ilimit_pos <= std_logic_vector(to_float(10,8,23)); 
+    pid_cntrl.ilimit_neg <= std_logic_vector(to_float(-10,8,23)); 
 
     -- remove global reset
     wait for 100 ns;
@@ -179,11 +220,74 @@ begin
     -- let it run at zero
     wait for 100 us;
 
-    -- step setpoint
-    setpoint <= to_signed(200000, 20);
+    -- ramp setpoint
+    setpoint_start <= 0.0; 
+    setpoint_end <= 2.5; 
+    
+    wait for 7 ms; 
+    
+    -- ramp setpoint again...
+    setpoint_start <= 2.5;
+    setpoint_end <= 1.2;  
+    
+    wait for 7 ms; 
+    
+    -- ramp setpoint again...
+    setpoint_start <= 1.2;
+    setpoint_end <= 3.5;  
+
 
     wait;
   end process;
+  
+--------------------------------------------------------------------------
+-- Smooth Ramp Generator Simulation
+--------------------------------------------------------------------------
+  
+-------------------------------------------------------------------------- 
+-- Clocked Smooth Ramp Generator (10 kHz Update Rate)
+-------------------------------------------------------------------------- 
+process(clk)
+    -- Constants for the ramp profile
+    constant RAMP_DURATION_NS : real :=15000000.0; -- 
+    constant CLK_PERIOD_NS    : real := 100.0;     -- Assuming a 10MHz clock for example
+    constant UPDATE_TICKS     : integer := 1000;   -- Steps every 100us (10kHz)
+    
+
+begin
+    if rising_edge(clk) then
+        if ramp_active then
+            setpoint_start_prev <= setpoint_start;          
+            -- Trigger calculation every 100us (10 kHz)
+            if tick_count >= UPDATE_TICKS then
+                tick_count <= 0;
+                -- 1. Calculate the smooth cosine ramp value (Real)
+                v_curr_val <= generate_cosine_ramp(setpoint_start, setpoint_end, time_ns, RAMP_DURATION_NS);
+                
+                -- 2. Scale and Convert to 20-bit Signed
+                -- Multiply by 524287 to avoid +1 overflow on 20-bit signed (max 524287)
+                setpoint <= to_signed(integer((v_curr_val / 100.0) * 524287.0), 20);
+                
+                -- 3. Update the tracking time
+                time_ns <= time_ns + 100000.0; -- Advance by 100us
+                
+                -- 4. Stop when we hit the end of the ramp
+                if time_ns > RAMP_DURATION_NS then
+                    ramp_active <= false;
+                    time_ns <= 0.0; 
+                    tick_count <= 0; 
+                end if; 
+            else
+                tick_count <= tick_count + 1;
+            end if;          
+        end if;
+        
+         if setpoint_start /= setpoint_start_prev then 
+             ramp_active <= true; 
+         end if; 
+         
+    end if;
+end process;
 
   --------------------------------------------------------------------------
   -- Simple pseudo-random noise generator
