@@ -119,6 +119,7 @@ proc doOnCreate {} {
   source ${TclPath}/float_to_fix20.tcl 
   source ${TclPath}/fp_lim_hi.tcl 
   source ${TclPath}/fp_lim_lo.tcl 
+  source ${TclPath}/dds_dac.tcl
 
   addSources "Sources" 
   

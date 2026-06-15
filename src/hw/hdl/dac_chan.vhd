@@ -41,24 +41,42 @@ end entity;
 
 architecture arch of dac_chan is
 
- 
-  signal dac_data         : std_logic_vector(19 downto 0);
-  signal dac_rdaddr       : std_logic_vector(15 downto 0);
-  signal dac_rddata       : std_logic_vector(19 downto 0);
-  signal dac_rden         : std_logic;
-  signal ramp_dac_setpt   : signed(19 downto 0);
-  signal smooth_dac_setpt : signed(19 downto 0);
-  --signal fofb_dac_setpt   : signed(19 downto 0);
-  signal dac_setpt_raw    : signed(19 downto 0);
-  signal dac_setpt        : signed(19 downto 0);
-  signal ramp_active      : std_logic;
-  signal smooth_active    : std_logic;
-  signal dac_trig         : std_logic;
-  signal gainoff_done     : std_logic;
 
-  
+component dds_dac IS
+  PORT (
+    aclk : IN STD_LOGIC;
+    s_axis_config_tvalid : IN STD_LOGIC;
+    s_axis_config_tdata : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    m_axis_data_tvalid : OUT STD_LOGIC;
+    m_axis_data_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    m_axis_phase_tvalid : OUT STD_LOGIC;
+    m_axis_phase_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+  );
+END component;
+
+
+
+ 
+  signal dac_data          : std_logic_vector(19 downto 0);
+  signal dac_rdaddr        : std_logic_vector(15 downto 0);
+  signal dac_rddata        : std_logic_vector(19 downto 0);
+  signal dac_rden          : std_logic;
+  signal ramp_dac_setpt    : signed(19 downto 0);
+  signal smooth_dac_setpt  : signed(19 downto 0);
+  --signal fofb_dac_setpt   : signed(19 downto 0);
+  signal dac_setpt_raw     : signed(19 downto 0);
+  signal dac_setpt         : signed(19 downto 0);
+  signal ramp_active       : std_logic;
+  signal smooth_active     : std_logic;
+  signal dac_trig          : std_logic;
+  signal gainoff_done      : std_logic;
+
   signal dac_setpt_gainoff : signed(19 downto 0); 
   signal dac_setpt_digital : signed(19 downto 0);  
+  
+  signal dds_out           : std_logic_vector(31 downto 0);
+  signal dds_sine          : std_logic_vector(19 downto 0);
+
 
 
 
@@ -110,6 +128,24 @@ begin
       end if;
     end if; 
 end process; 
+
+
+dds_sine <= "00" & dds_out(31 downto 16) & "00";
+
+
+ddsmode: dds_dac 
+  port map (
+    aclk => clk,
+    s_axis_config_tvalid => '1', 
+    s_axis_config_tdata => dac_cntrl.dds_freq, 
+    m_axis_data_tvalid => open, 
+    m_axis_data_tdata => dds_out, 
+    m_axis_phase_tvalid => open, 
+    m_axis_phase_tdata => open
+  );
+
+
+
 
 
 -- In rampmode, DAC setpoint comes from table in block ram
@@ -175,8 +211,8 @@ port map(
 dac_setpt <= dac_setpt_gainoff when pid_cntrl.digpid_enb = '0' else dac_setpt_digital;    
   
 
--- select 18 bit or 20 bit, put hard limits on dac
-dac_data <= std_logic_vector(dac_setpt); -- when dac_numbits_sel = '1' else std_logic_vector((dac_setpt(17 downto 0) & "00"));
+-- write dac_setpt or if in DDS mode write the DDS output
+dac_data <= std_logic_vector(dac_setpt) when dac_cntrl.dds_enb = '0' else dds_sine; -- when dac_numbits_sel = '1' else std_logic_vector((dac_setpt(17 downto 0) & "00"));
 
 
 -- write the SPI DAC

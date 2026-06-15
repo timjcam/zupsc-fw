@@ -204,6 +204,7 @@ reg {
 
 
 
+
 /**** Channel 1 ****/
 
 /* 10Hz Data */
@@ -848,6 +849,19 @@ reg {
   } ps1_setpt_out @0x38C; 
 
 
+reg {
+    desc="PS1 DAC DDS Freq";
+    default sw = rw;
+    default hw = r; 
+    field {} val[32];
+  } ps1_dac_dds_freq @0x3A0;
+  
+reg {
+    desc="PS1 DAC DDS Enb";
+    default sw = rw;
+    default hw = r; 
+    field {} val[1];
+  } ps1_dac_dds_enb @0x3A4;
 
 
 
@@ -1496,7 +1510,19 @@ reg {
   } ps2_setpt_out @0x58C; 
 
 
-
+reg {
+    desc="PS2 DAC DDS Freq";
+    default sw = rw;
+    default hw = r; 
+    field {} val[32];
+  } ps2_dac_dds_freq @0x5A0;
+  
+reg {
+    desc="PS2 DAC DDS Enb";
+    default sw = rw;
+    default hw = r; 
+    field {} val[1];
+  } ps2_dac_dds_enb @0x5A4;
 
 
 
@@ -2149,6 +2175,19 @@ reg {
   } ps3_setpt_out @0x78C; 
 
 
+reg {
+    desc="PS3 DAC DDS Freq";
+    default sw = rw;
+    default hw = r; 
+    field {} val[32];
+  } ps3_dac_dds_freq @0x7A0;
+  
+reg {
+    desc="PS3 DAC DDS Enb";
+    default sw = rw;
+    default hw = r; 
+    field {} val[1];
+  } ps3_dac_dds_enb @0x7A4;
 
 
 
@@ -2800,6 +2839,19 @@ reg {
   } ps4_setpt_out @0x98C; 
 
 
+reg {
+    desc="PS4 DAC DDS Freq";
+    default sw = rw;
+    default hw = r; 
+    field {} val[32];
+  } ps4_dac_dds_freq @0x9A0;
+  
+reg {
+    desc="PS4 DAC DDS Enb";
+    default sw = rw;
+    default hw = r; 
+    field {} val[1];
+  } ps4_dac_dds_enb @0x9A4;
 
 
 
