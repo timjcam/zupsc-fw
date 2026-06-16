@@ -102,7 +102,7 @@ dac_stat.active <= ramp_active or smooth_active;
 
 
 
---Source of DAC data depenods on Mode
+--Source of DAC data depends on Mode
 --Because DAC sync's are tied together, must always update every DAC
 --  0=smooth ramp, 1=ramp table, 2=FOFB, 3=Jump Mode
 process(clk) 
@@ -130,7 +130,18 @@ begin
 end process; 
 
 
-dds_sine <= "00" & dds_out(31 downto 16) & "00";
+
+process(clk)
+begin
+  if rising_edge(clk) then
+    if tenkhz_trig = '1' then
+       dds_sine <= std_logic_vector(resize(signed(dds_out(31 downto 16)), 20) sll 2);
+    end if;
+  end if;
+end process;
+
+
+
 
 
 ddsmode: dds_dac 
