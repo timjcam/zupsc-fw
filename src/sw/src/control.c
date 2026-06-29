@@ -786,7 +786,19 @@ void chan_settings(u32 chan, void *msg, u32 msglen) {
          	xil_printf("Digital PID Accum Limit = %d\r\n",data.u);
          	break;
 
+         case DAC_DDS_FREQ_MSG:
+            //Set DAC DDS Frequency
+            //Step Size = 2^n * fout / fclk
+            //          = 2^32 * data.u / 100MHz
+            scaled_val = (4294967296.0 * data.u) / 100e6;
+            xil_printf("DDS Frequency:  %d    NCO Step Size:  %d\r\n",data.u, scaled_val);
+        	Xil_Out32(XPAR_M_AXI_BASEADDR + DAC_DDS_FREQ_REG + chan*CHBASEADDR, scaled_val);
+         	break;
 
+         case DAC_DDS_ENB_MSG:
+         	Xil_Out32(XPAR_M_AXI_BASEADDR + DAC_DDS_ENB_REG + chan*CHBASEADDR, data.u);
+         	xil_printf("DAC DDS Enable = %d\r\n",data.u);
+         	break;
 
 
         default:

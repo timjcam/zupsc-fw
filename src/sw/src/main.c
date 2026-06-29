@@ -210,6 +210,14 @@ int main(void) {
 	Xil_Out32(XPAR_M_AXI_BASEADDR + NCO_STEPSIZE_REG, 4294967);
 
 
+
+    //Set DAC DDS Frequency trigger frequency
+    //Step Size = 2^n * fout / fclk
+    //          = 2^32 * 1 KHz / 100MHz
+    //          = 42950
+	Xil_Out32(XPAR_M_AXI_BASEADDR + DAC_DDS_FREQ_REG + 1*CHBASEADDR, 42950);
+
+
 	xil_printf("Init I2c...\r\n");
 	init_i2c();
 	xil_printf("Init Sysmon...\r\n");

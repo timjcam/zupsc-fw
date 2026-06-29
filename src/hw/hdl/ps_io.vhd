@@ -175,6 +175,9 @@ reg_i.ps1_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps1.
 
 dac_cntrl.ps1.smooth_phaseinc <= signed(reg_o.ps1_dac_smooth_phaseinc.val.data);
 
+dac_cntrl.ps1.dds_freq <= reg_o.ps1_dac_dds_freq.val.data;
+dac_cntrl.ps1.dds_enb <= reg_o.ps1_dac_dds_enb.val.data(0);
+
 
 -- digital loop
 pid_cntrl.ps1.kp <= reg_o.ps1_kp.val.data;
@@ -293,6 +296,9 @@ reg_i.ps2_dac_rampactive.val.data(0) <= dac_stat.ps2.active;
 reg_i.ps2_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps2.dac_setpt),32));
 
 dac_cntrl.ps2.smooth_phaseinc <= signed(reg_o.ps2_dac_smooth_phaseinc.val.data);
+
+dac_cntrl.ps2.dds_freq <= reg_o.ps2_dac_dds_freq.val.data;
+dac_cntrl.ps2.dds_enb <= reg_o.ps2_dac_dds_enb.val.data(0);
 
 
 -- digital loop
@@ -413,6 +419,9 @@ reg_i.ps3_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps3.
 
 dac_cntrl.ps3.smooth_phaseinc <= signed(reg_o.ps3_dac_smooth_phaseinc.val.data);
 
+dac_cntrl.ps3.dds_freq <= reg_o.ps3_dac_dds_freq.val.data;
+dac_cntrl.ps3.dds_enb <= reg_o.ps3_dac_dds_enb.val.data(0);
+
 
 -- digital loop
 pid_cntrl.ps3.kp <= reg_o.ps3_kp.val.data;
@@ -531,6 +540,9 @@ reg_i.ps4_dac_rampactive.val.data(0) <= dac_stat.ps4.active;
 reg_i.ps4_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps4.dac_setpt),32));
 
 dac_cntrl.ps4.smooth_phaseinc <= signed(reg_o.ps4_dac_smooth_phaseinc.val.data);
+
+dac_cntrl.ps4.dds_freq <= reg_o.ps4_dac_dds_freq.val.data;
+dac_cntrl.ps4.dds_enb <= reg_o.ps4_dac_dds_enb.val.data(0);
 
 
 -- digital loop

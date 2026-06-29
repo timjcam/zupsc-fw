@@ -39,7 +39,7 @@ float sysmon_read_stats() {
 
     // Convert raw temperature data to degrees Celsius
     val = XSysMonPsu_RawToTemperature_OnChip(temprawdata);
-    printf("Die Temp in func: %f\n",val);
+    //printf("Die Temp in func: %f\n",val);
     return(val);
 
 }
@@ -131,7 +131,7 @@ static void brdstats_push(void *unused)
 
         //read die temps
         //locks up thread ???
-    	printf("FPGA Temp: %f\r\n",sysmon_read_stats());
+    	//printf("FPGA Temp: %f\r\n",sysmon_read_stats());
         msg.brd_temps.die_ps = htonf(sysmon_read_stats());
         //msg.brd_temps.die_ps = htonf(sysmon_pl_getTemp());
         //printf("FPGA PS Temp: %f\r\n",msg.brd_temps.die_ps);

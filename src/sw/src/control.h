@@ -101,6 +101,9 @@
 #define DPID_PARK_MSG        620
 #define DPID_ILIMIT_MSG      624
 
+#define DAC_DDS_FREQ_MSG     650
+#define DAC_DDS_ENB_MSG      654
+
 
 #define WRITE_RAMPTABLE_MSG  1000
 
