@@ -65,6 +65,7 @@ END component;
   signal smooth_dac_setpt  : signed(19 downto 0);
   --signal fofb_dac_setpt   : signed(19 downto 0);
   signal dac_setpt_raw     : signed(19 downto 0);
+  signal dac_setpt_rawordds: signed(19 downto 0);
   signal dac_setpt         : signed(19 downto 0);
   signal ramp_active       : std_logic;
   signal smooth_active     : std_logic;
@@ -75,7 +76,7 @@ END component;
   signal dac_setpt_digital : signed(19 downto 0);  
   
   signal dds_out           : std_logic_vector(31 downto 0);
-  signal dds_sine          : std_logic_vector(19 downto 0);
+  signal dds_sine          : signed(19 downto 0);
 
 
 
@@ -136,12 +137,15 @@ process(clk)
 begin
   if rising_edge(clk) then
     if tenkhz_trig = '1' then
-       dds_sine <= std_logic_vector(resize(signed(dds_out(31 downto 16)), 20) sll 2);
+       dds_sine <= resize(signed(dds_out(31 downto 16)), 20) sll 2;
     end if;
   end if;
 end process;
 
 
+
+-- forward dac_setpt or if in DDS mode write the DDS output
+dac_setpt_rawordds <= dac_setpt_raw when dac_cntrl.dds_enb = '0' else dds_sine; 
 
 
 
@@ -197,7 +201,7 @@ gainoff_dac : entity work.dac_gainoffset
     reset => reset,
     tenkhz_trig => tenkhz_trig,
     numbits_sel => dac_numbits_sel,
-    dac_setpt_raw => dac_setpt_raw,
+    dac_setpt_raw => dac_setpt_rawordds,
     dac_cntrl => dac_cntrl,
     dac_setpt => dac_setpt_gainoff,
     done => gainoff_done
@@ -219,12 +223,12 @@ port map(
 );  
   
   
-  
+-- mux to bypass digital PID  
 dac_setpt <= dac_setpt_gainoff when pid_cntrl.digpid_enb = '0' else dac_setpt_digital;    
   
 
--- write dac_setpt or if in DDS mode write the DDS output
-dac_data <= std_logic_vector(dac_setpt) when dac_cntrl.dds_enb = '0' else dds_sine; -- when dac_numbits_sel = '1' else std_logic_vector((dac_setpt(17 downto 0) & "00"));
+dac_data <= std_logic_vector(dac_setpt);
+
 
 
 -- write the SPI DAC
