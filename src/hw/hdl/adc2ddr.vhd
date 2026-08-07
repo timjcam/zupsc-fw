@@ -151,9 +151,12 @@ process(clk)
           when PS1_DCCT1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps1.dcct0), 32)), PS1_DCCT2); 
           when PS1_DCCT2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(dcct_adcs.ps1.dcct1), 32)), PS1_MON1); 
           when PS1_MON1 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.dacmon), 32)), PS1_MON2);          
-          when PS1_MON2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.voltage), 32)), PS1_MON3);   
-          when PS1_MON3 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.ignd), 32)), PS1_MON4);   
-          when PS1_MON4 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.spare), 32)), PS1_MON5);            
+          when PS1_MON2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps1.setptin_f), 32)), PS1_MON3);  
+          --when PS1_MON2 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.voltage), 32)), PS1_MON3);           
+          when PS1_MON3 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps1.pterm_f), 32)), PS1_MON4);   
+          when PS1_MON4 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps1.iterm_f), 32)), PS1_MON5);            
+          --when PS1_MON3 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.ignd), 32)), PS1_MON4);   
+         -- when PS1_MON4 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(mon_adcs.ps1.spare), 32)), PS1_MON5);            
           when PS1_MON5 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps1.sumterm_f), 32)), PS1_MON6);   
           when PS1_MON6 => write_word(s_axi4_m2s.wdata, s_axi4_m2s.wvalid, state, std_logic_vector(resize(signed(pid_stat.ps1.error_f), 32)), PS2_DCCT1);   
 

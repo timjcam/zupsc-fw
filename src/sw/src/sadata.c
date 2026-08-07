@@ -114,8 +114,8 @@ void sadata_push(void *unused)
            sadata.ps[chan].dcct2 = ReadAccumSA(base + DCCT2_REG, ave_mode) * CONVDACBITSTOVOLTS * scalefactors[chan].dac_dccts;
            sadata.ps[chan].dcct2_offset = (s32)Xil_In32(base + DCCT2_OFFSET_REG) * CONVDACBITSTOVOLTS * scalefactors[chan].dac_dccts;
            sadata.ps[chan].dcct2_gain = (s32)Xil_In32(base + DCCT2_GAIN_REG) / GAIN20BITFRACT;
-           sadata.ps[chan].dacmon = ReadAccumSA(base + DACMON_REG, ave_mode) * CONV16BITSTOVOLTS * scalefactors[chan].dac_dccts;
-           sadata.ps[chan].dacmon_offset = (s32)Xil_In32(base + DACMON_OFFSET_REG) * CONV16BITSTOVOLTS * scalefactors[chan].dac_dccts;
+           sadata.ps[chan].dacmon = ReadAccumSA(base + DACMON_REG, ave_mode) * CONV16BITSTOVOLTS * scalefactors[chan].regulator;
+           sadata.ps[chan].dacmon_offset = (s32)Xil_In32(base + DACMON_OFFSET_REG) * CONV16BITSTOVOLTS * scalefactors[chan].regulator;
            sadata.ps[chan].dacmon_gain = (s32)Xil_In32(base + DACMON_GAIN_REG) / GAIN20BITFRACT;
            sadata.ps[chan].volt = ReadAccumSA(base + VOLT_REG, ave_mode) * CONV16BITSTOVOLTS * scalefactors[chan].vout;
            sadata.ps[chan].volt_offset = (s32)Xil_In32(base + VOLT_OFFSET_REG) * CONV16BITSTOVOLTS * scalefactors[chan].vout;
@@ -135,10 +135,10 @@ void sadata_push(void *unused)
            sadata.ps[chan].error_gain = (s32)Xil_In32(base + ERR_GAIN_REG) / GAIN20BITFRACT;
 
            //DAC
-           sadata.ps[chan].dac_setpt = (s32)Xil_In32(base + DAC_CURRSETPT_REG) * CONVDACBITSTOVOLTS * scalefactors[chan].dac_dccts;
+           sadata.ps[chan].dac_setpt = (s32)Xil_In32(base + DAC_CURRSETPT_REG) * CONVDACBITSTOVOLTS * scalefactors[chan].regulator;
            sadata.ps[chan].dac_setpt_raw = (s32)Xil_In32(base + DAC_CURRSETPT_REG);
 
-           sadata.ps[chan].dac_setpt_offset = (s32)Xil_In32(base + DAC_SETPT_OFFSET_REG) * CONVDACBITSTOVOLTS * scalefactors[chan].dac_dccts;
+           sadata.ps[chan].dac_setpt_offset = (s32)Xil_In32(base + DAC_SETPT_OFFSET_REG) * CONVDACBITSTOVOLTS * scalefactors[chan].regulator;
            sadata.ps[chan].dac_setpt_gain = (s32)Xil_In32(base + DAC_SETPT_GAIN_REG) / GAIN20BITFRACT;
            sadata.ps[chan].dac_rampactive = Xil_In32(base + DAC_RAMPACTIVE_REG);
 

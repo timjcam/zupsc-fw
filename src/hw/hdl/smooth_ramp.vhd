@@ -129,7 +129,7 @@ process(clk)
             rampout_wdiff <= 48d"0";                
             -- run if dac setpt changes and dac_opmode is Smooth
             if (new_setpt_prev /= new_setpt) and (mode = "00")then
-              old_setpt <= cur_setpt;
+              old_setpt <= new_setpt_prev; --cur_setpt;
               new_setpt_lat <= new_setpt;
               state <= run_ramp;
               phase <= NEG_PI; 

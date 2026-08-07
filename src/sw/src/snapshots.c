@@ -154,11 +154,17 @@ void CopyDataChan(float **msg_ptr, volatile u32 *buf_data, u32 numwords, int cha
                 (*msg_ptr)++;
                 **msg_ptr = (float)(s32)(buf_data[i+4]) * CONV16BITSTOVOLTS * scalefactors[chan-1].dac_dccts;   //DAC Monitor
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+5]) * CONV16BITSTOVOLTS * scalefactors[chan-1].vout;   //Voltage Monitor
+                //**msg_ptr = (float)(s32)(buf_data[i+5]) * CONV16BITSTOVOLTS * scalefactors[chan-1].vout;   //Voltage Monitor
+                //(*msg_ptr)++;
+                **msg_ptr = ((MsgUnion){ .u = buf_data[i+5] }).f; //(float)buf_data[i+8]; //(float)(s32)(buf_data[i+8]) * CONV16BITSTOVOLTS * scalefactors[chan-1].regulator;   //Regulator
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+6]) * CONV16BITSTOVOLTS * scalefactors[chan-1].ignd;   //iGND Monitor
+                //**msg_ptr = (float)(s32)(buf_data[i+6]) * CONV16BITSTOVOLTS * scalefactors[chan-1].ignd;   //iGND Monitor
+                //(*msg_ptr)++;
+                //**msg_ptr = (float)(s32)(buf_data[i+7]) * CONV16BITSTOVOLTS * scalefactors[chan-1].spare;   //Spare Monitor
+                //(*msg_ptr)++;
+                **msg_ptr = ((MsgUnion){ .u = buf_data[i+6] }).f; //(float)buf_data[i+8]; //(float)(s32)(buf_data[i+8]) * CONV16BITSTOVOLTS * scalefactors[chan-1].regulator;   //Regulator
                 (*msg_ptr)++;
-                **msg_ptr = (float)(s32)(buf_data[i+7]) * CONV16BITSTOVOLTS * scalefactors[chan-1].spare;   //Spare Monitor
+                **msg_ptr = ((MsgUnion){ .u = buf_data[i+7] }).f; //(float)buf_data[i+9]; //(float)(s32)(buf_data[i+9]) * CONV16BITSTOVOLTS * scalefactors[chan-1].error;   //Error
                 (*msg_ptr)++;
                 **msg_ptr = ((MsgUnion){ .u = buf_data[i+8] }).f; //(float)buf_data[i+8]; //(float)(s32)(buf_data[i+8]) * CONV16BITSTOVOLTS * scalefactors[chan-1].regulator;   //Regulator
                 (*msg_ptr)++;

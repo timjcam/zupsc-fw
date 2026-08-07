@@ -40,6 +40,7 @@ architecture behv of pid_fp_controller is
   signal setptout_fp     : std_logic_vector(31 downto 0);   
   signal setptout        : std_logic_vector(19 downto 0); 
   
+  signal setpt_f_valid   : std_logic;
   signal err_valid       : std_logic;
   signal err_int_valid   : std_logic;
   signal iterm_valid     : std_logic;
@@ -81,7 +82,7 @@ setpt_conv : entity work.fix20_to_float
     aclk => clk,
     s_axis_a_tvalid => start, --'1',
     s_axis_a_tdata => std_logic_vector(resize(setpoint,24)),
-    m_axis_result_tvalid => open,
+    m_axis_result_tvalid => setpt_f_valid, --open,
     m_axis_result_tdata => setpt_f
   );
 
@@ -101,7 +102,7 @@ fdbk_conv : entity work.fix20_to_float
 error_term : entity work.fp_sub
   PORT MAP (
     aclk => clk,
-    s_axis_a_tvalid => start, --'1',
+    s_axis_a_tvalid => setpt_f_valid, --start, --'1',
     s_axis_a_tdata => setpt_f,
     s_axis_b_tvalid => '1',
     s_axis_b_tdata => fdbk_f,
