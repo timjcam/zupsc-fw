@@ -190,11 +190,15 @@ s32 init_sysmon() {
 int main(void) {
 
 	u32 i, base;
+	u32 ts_s, ts_ns;
 
 
 
     xil_printf("Power Supply Controller...\r\n");
     print_firmware_version();
+
+
+
 
 
 	//Xil_DCacheDisable();
@@ -220,9 +224,17 @@ int main(void) {
 
 	xil_printf("Init I2c...\r\n");
 	init_i2c();
+	usleep(100);
 	xil_printf("Init Sysmon...\r\n");
 	init_sysmon();
-	//prog_si570();
+
+
+    // oscillator for EVR reference clock
+	xil_printf("Init lmk61e2...\r\n");
+	i2c_set_port_expander(I2C_PORTEXP0_ADDR,0x0);
+	i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x40);
+	xil_printf("Hello\r\n");
+    write_lmk61e2();
 
 
 	// Qspi data is now in EEPROM
@@ -248,8 +260,8 @@ int main(void) {
 	//EVR reset
     xil_printf("Resetting EVR GTX...\r\n");
 	Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RESET_REG, 0xFF);
-	//usleep(100);
-	//Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RESET_REG, 0);
+	usleep(100);
+	Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RESET_REG, 0);
 
 	// Set FOFB IP Address
     //xil_printf("Setting FOFB IP Address to 10.0.142.100...\r\n");
@@ -261,7 +273,13 @@ int main(void) {
 	//       Xil_Out32(base + FAULT_MASK_REG,0x1FEF);
 	//}
 
-
+	//read Timestamp
+	  for (i=0;i<5;i++) {
+	     ts_s = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_S_REG);
+	     ts_ns = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_NS_REG);
+	     xil_printf("ts= %d    %d\r\n",ts_s,ts_ns);
+	     sleep(1);
+	  }
 
     sys_thread_new("main", realmain, NULL, THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 

@@ -64,15 +64,23 @@ proc setSources {} {
   
   lappend Sources {"../hdl/adc2ddr.vhd" "VHDL 2008"}  
   
-  #lappend Sources {"../hdl/evr_top.vhd" "VHDL 2008"}  
-  #lappend Sources {"../hdl/event_rcv_chan.vhd" "VHDL 2008"}   
-  #lappend Sources {"../hdl/event_rcv_ts.vhd" "VHDL 2008"}   
+  lappend Sources {"../hdl/sync_cdc.vhd" "VHDL 2008"}  
+  
+  lappend Sources {"../hdl/evr/evr_top.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/evr/ts_gen.vhd" "VHDL 2008"} 
+  
+  lappend Sources {"../hdl/evr/evg_top.vhd" "VHDL 2008"}   
+  lappend Sources {"../hdl/evr/event_rcv_chan.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/evr/event_rcv_ts.vhd" "VHDL 2008"}   
+  
+  lappend Sources {"../hdl/fofb_top.vhd" "VHDL 2008"}   
+  lappend Sources {"../hdl/LocalDataCRC.v" "Verilog"} 
   
   lappend Sources {"../hdl/stretch.vhd" "VHDL 2008"}  
 
   lappend Sources {"../cstr/afepins.xdc"  "XDC"}
   lappend Sources {"../cstr/dfepins.xdc"  "XDC"}
-  #lappend Sources {"../cstr/gtx.xdc"  "XDC"}
+  lappend Sources {"../cstr/gth.xdc"  "XDC"}
   lappend Sources {"../cstr/debug.xdc"  "XDC"}
   lappend Sources {"../cstr/timing.xdc"  "XDC"}   
 
@@ -106,7 +114,8 @@ proc doOnCreate {} {
    
   source ${TclPath}/system.tcl
   source ${TclPath}/dac_dpram.tcl
-  #source ${TclPath}/evr_gth.tcl
+  source ${TclPath}/evr_gth.tcl
+  source ${TclPath}/fofb_gth.tcl
   source ${TclPath}/cordic_sine.tcl
   #source ${TclPath}/gige_pcs_pma_tx.tcl
   #source ${TclPath}/gige_pcs_pma_rx.tcl

@@ -51,18 +51,20 @@ generic(
     dcct_flt                : in std_logic_vector(3 downto 0);
          
     -- Embedded Event Receiver
---    gtx_evr_refclk_p        : in std_logic;
---    gtx_evr_refclk_n        : in std_logic;
---    gtx_evr_rx_p            : in std_logic;
---    gtx_evr_rx_n            : in std_logic;
+    gth_evr_refclk_p        : in std_logic;
+    gth_evr_refclk_n        : in std_logic;
+    gth_evr_tx_p            : out std_logic;
+    gth_evr_tx_n            : out std_logic;
+    gth_evr_rx_p            : in std_logic;
+    gth_evr_rx_n            : in std_logic;
     
     --FOFB gigE interface
 --    gth_gige_refclk_p       : in std_logic;
 --    gth_gige_refclk_n       : in std_logic;
---    gth_gige_rx_p           : in std_logic_vector(1 downto 0);
---    gth_gige_rx_n           : in std_logic_vector(1 downto 0);
---    gth_gige_tx_p           : out std_logic_vector(1 downto 0);
---    gth_gige_tx_n           : out std_logic_vector(1 downto 0);
+    gth_fofb_rx_p           : in std_logic;
+    gth_fofb_rx_n           : in std_logic;
+    gth_fofb_tx_p           : out std_logic;
+    gth_fofb_tx_n           : out std_logic;
     
     --sfp info
     sfp_led                 : out std_logic_vector(11 downto 0);
@@ -118,6 +120,16 @@ architecture behv of top is
    signal evr_params            : t_evr_params;
    signal evr_trigs             : t_evr_trigs;
    
+   signal evr_tbt_trig          : std_logic;
+   signal evr_fa_trig           : std_logic;
+   signal evr_sa_trig           : std_logic;
+   signal evr_gps_trig          : std_logic;
+   signal evr_dma_trig          : std_logic;  
+   signal evr_ts                : std_logic_vector(63 downto 0); 
+   signal evr_rcvd_clk          : std_logic;
+   signal evr_ref_clk           : std_logic;
+   
+   
    signal dig_cntrl             : t_dig_cntrl;
    signal dig_stat              : t_dig_stat;
    
@@ -139,6 +151,7 @@ architecture behv of top is
 
    signal sa_trig_stretch       : std_logic;
    
+   signal gth_refclk            : std_logic;
   
    --debug signals (connect to ila)
    attribute mark_debug                 : string;
@@ -182,9 +195,13 @@ fp_led(3) <= '0';
 fp_led(5) <= '0';
 fp_led(7) <= '0';
 
-sfp_led(11 downto 0) <= 12d"0";
+sfp_led(0) <= evr_trigs.gps_trig;
+sfp_led(11 downto 1) <= 11d"0";
 
-dbg(3 downto 0) <= "0000";
+dbg(0) <= evr_rcvd_clk;
+dbg(1) <= '0';
+dbg(2) <= '0';
+dbg(3) <= '0'; 
 dbg(4) <= pl_clk0;
 dbg(5) <= acq_trig;
 dbg(19 downto 6) <= (others => '0');
@@ -324,18 +341,46 @@ dig_io: entity work.digio_logic
 );
 
 
-----embedded event receiver
---evr: entity work.evr_top 
---  port map(
---    sys_clk => pl_clk0,
---    sys_rst => pl_reset,
---    gtx_evr_refclk_p => gtx_evr_refclk_p,
---    gtx_evr_refclk_n => gtx_evr_refclk_n,
---    rx_p => gtx_evr_rx_p,
---    rx_n => gtx_evr_rx_n,
---    evr_params => evr_params,
---    evr_trigs => evr_trigs
---);	
+
+-- Kiman FOFB
+fofb: entity work.fofb_top 
+  port map(
+    sys_clk => pl_clk0, 
+    sys_rst => pl_reset, 
+    gth_reset => evr_params.reset, --gtx_rst,
+    gth_refclk => gth_refclk, 	 -- 312.3 MHz reference clock
+    trig => evr_trigs.fa_trig, 
+    tx_p => gth_fofb_tx_p, 
+    tx_n => gth_fofb_tx_n, 
+    rx_p => gth_fofb_rx_p, 
+    rx_n => gth_fofb_rx_n, 
+    fofb_data => fofb_data 
+);
+
+
+
+
+
+--embedded event receiver
+evr: entity work.evr_top 
+  generic map (
+    SIM_MODE => SIM_MODE
+  )
+  port map(
+    sys_clk => pl_clk0,
+    sys_rst => pl_reset, 
+    gth_refclk_p => gth_evr_refclk_p,  -- 312.5 MHz reference clock
+    gth_refclk_n => gth_evr_refclk_n,
+    gth_tx_p => gth_evr_tx_p,
+    gth_tx_n => gth_evr_tx_n,
+    gth_rx_p => gth_evr_rx_p,
+    gth_rx_n => gth_evr_rx_n,
+    evr_params => evr_params,
+    evr_trigs => evr_trigs,
+    evr_rcvd_clk => evr_rcvd_clk,
+    gth_refclk => gth_refclk
+);	
+
 
 
 --registers from/to ARM

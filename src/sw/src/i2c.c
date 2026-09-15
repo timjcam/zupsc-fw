@@ -89,9 +89,11 @@ void i2c_set_port_expander(u32 addr, u32 port)  {
     buf[0] = port;
     buf[1] = 0;
     buf[2] = 0;
-
-	while (XIicPs_BusIsBusy(&IicPsInstance));
+    //xil_printf("Before is busy\r\n");
+	//while (XIicPs_BusIsBusy(&IicPsInstance));
+	//xil_printf("After is busy\r\n");
     XIicPs_MasterSendPolled(&IicPsInstance, buf, len, addr);
+    //xil_printf("success\r\n");
 }
 
 
@@ -237,7 +239,7 @@ void write_lmk61e2()
 {
    u8 buf[4] = {0};
    u32 regval, i;
-
+   //xil_printf("In LMK61e2\r\n");
    u32 num_values = sizeof(lmk61e2_values) / sizeof(lmk61e2_values[0]);  // Get the number of elements in the array
    i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x20);
    for (i=0; i<num_values; i++) {
@@ -246,7 +248,7 @@ void write_lmk61e2()
       buf[1] = (char) (regval & 0xFF);
       //xil_printf("Writing I2c\r\n");
       i2c_write(buf,2,0x5A);
-      xil_printf("LMK61e2 Write = 0x%x\t    B0 = %x    B1 = %x\r\n",regval, buf[0], buf[1]);
+      //xil_printf("LMK61e2 Write = 0x%x\t    B0 = %x    B1 = %x\r\n",regval, buf[0], buf[1]);
    };
 
 
