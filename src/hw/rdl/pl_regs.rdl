@@ -862,6 +862,21 @@ reg {
     default hw = r; 
     field {} val[1];
   } ps1_dac_dds_enb @0x3A4;
+  
+ reg {
+    desc="PS1 DAC DDS Amplitude";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps1_dac_dds_ampl @0x3A8; 
+  
+ reg {
+    desc="PS1 DAC DDS Offset";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps1_dac_dds_off @0x3AC;   
+  
 
 
 
@@ -1524,7 +1539,19 @@ reg {
     field {} val[1];
   } ps2_dac_dds_enb @0x5A4;
 
-
+ reg {
+    desc="PS2 DAC DDS Amplitude";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps2_dac_dds_ampl @0x5A8; 
+  
+ reg {
+    desc="PS2 DAC DDS Offset";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps2_dac_dds_off @0x5AC; 
 
 
 
@@ -2188,6 +2215,20 @@ reg {
     default hw = r; 
     field {} val[1];
   } ps3_dac_dds_enb @0x7A4;
+
+ reg {
+    desc="PS3 DAC DDS Amplitude";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps3_dac_dds_ampl @0x7A8; 
+  
+ reg {
+    desc="PS3 DAC DDS Offset";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps3_dac_dds_off @0x7AC; 
 
 
 
@@ -2853,6 +2894,19 @@ reg {
     field {} val[1];
   } ps4_dac_dds_enb @0x9A4;
 
+ reg {
+    desc="PS4 DAC DDS Amplitude";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps4_dac_dds_ampl @0x9A8; 
+  
+ reg {
+    desc="PS4 DAC DDS Offset";
+    default sw = rw;
+    default hw = r; 
+    field {} val[20];
+  } ps4_dac_dds_off @0x9AC; 
 
 
 

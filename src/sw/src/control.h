@@ -103,6 +103,8 @@
 
 #define DAC_DDS_FREQ_MSG     650
 #define DAC_DDS_ENB_MSG      654
+#define DAC_DDS_AMPL_MSG     658
+#define DAC_DDS_OFF_MSG      662
 
 
 #define WRITE_RAMPTABLE_MSG  1000

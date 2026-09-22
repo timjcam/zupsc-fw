@@ -176,6 +176,8 @@ reg_i.ps1_dac_currsetpt.val.data <= std_logic_vector(resize(signed(dac_stat.ps1.
 dac_cntrl.ps1.smooth_phaseinc <= signed(reg_o.ps1_dac_smooth_phaseinc.val.data);
 
 dac_cntrl.ps1.dds_freq <= reg_o.ps1_dac_dds_freq.val.data;
+dac_cntrl.ps1.dds_amplitude <= reg_o.ps1_dac_dds_ampl.val.data;
+dac_cntrl.ps1.dds_offset <= reg_o.ps1_dac_dds_off.val.data;
 dac_cntrl.ps1.dds_enb <= reg_o.ps1_dac_dds_enb.val.data(0);
 
 
@@ -299,6 +301,8 @@ dac_cntrl.ps2.smooth_phaseinc <= signed(reg_o.ps2_dac_smooth_phaseinc.val.data);
 
 dac_cntrl.ps2.dds_freq <= reg_o.ps2_dac_dds_freq.val.data;
 dac_cntrl.ps2.dds_enb <= reg_o.ps2_dac_dds_enb.val.data(0);
+dac_cntrl.ps2.dds_amplitude <= reg_o.ps2_dac_dds_ampl.val.data;
+dac_cntrl.ps2.dds_offset <= reg_o.ps2_dac_dds_off.val.data;
 
 
 -- digital loop
@@ -421,6 +425,8 @@ dac_cntrl.ps3.smooth_phaseinc <= signed(reg_o.ps3_dac_smooth_phaseinc.val.data);
 
 dac_cntrl.ps3.dds_freq <= reg_o.ps3_dac_dds_freq.val.data;
 dac_cntrl.ps3.dds_enb <= reg_o.ps3_dac_dds_enb.val.data(0);
+dac_cntrl.ps3.dds_amplitude <= reg_o.ps3_dac_dds_ampl.val.data;
+dac_cntrl.ps3.dds_offset <= reg_o.ps3_dac_dds_off.val.data;
 
 
 -- digital loop
@@ -543,6 +549,8 @@ dac_cntrl.ps4.smooth_phaseinc <= signed(reg_o.ps4_dac_smooth_phaseinc.val.data);
 
 dac_cntrl.ps4.dds_freq <= reg_o.ps4_dac_dds_freq.val.data;
 dac_cntrl.ps4.dds_enb <= reg_o.ps4_dac_dds_enb.val.data(0);
+dac_cntrl.ps4.dds_amplitude <= reg_o.ps4_dac_dds_ampl.val.data;
+dac_cntrl.ps4.dds_offset <= reg_o.ps4_dac_dds_off.val.data;
 
 
 -- digital loop

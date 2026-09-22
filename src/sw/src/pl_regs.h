@@ -117,8 +117,10 @@
 #define DPID_SUMTERM_REG         0x188
 #define DPID_SETPTOUT_REG        0x18C    // DAC Setpoint output from Digital PID (after float2fixed)
 
-#define DAC_DDS_FREQ_REG         0x1A0    // DAC Sinewave frequency for measuring system bandwidth
-#define DAC_DDS_ENB_REG          0x1A4    // DAC Enable DDS mode
+#define DAC_DDS_FREQ_REG         0x1A0    // DAC DDS Sinewave frequency for measuring system bandwidth
+#define DAC_DDS_ENB_REG          0x1A4    // DAC DDS Enable mode
+#define DAC_DDS_AMPL_REG         0x1A8    // DAC DDS Amplitude
+#define DAC_DDS_OFF_REG          0x1AC    // DAC DDS Offset
 
 
 #define SNAPSHOT_ADDRPTR         0xA00     // Snapshot 20 sec circular buffer current address pointer

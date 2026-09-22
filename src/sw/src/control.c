@@ -790,14 +790,26 @@ void chan_settings(u32 chan, void *msg, u32 msglen) {
             //Set DAC DDS Frequency
             //Step Size = 2^n * fout / fclk
             //          = 2^32 * data.u / 100MHz
-            scaled_val = (4294967296.0 * data.u) / 100e6;
-            xil_printf("DDS Frequency:  %d    NCO Step Size:  %d\r\n",data.u, scaled_val);
+            scaled_val = (4294967296.0 * data.f) / 100e6;
+            printf("DDS Frequency:  %f Hz    NCO Step Size:  %d\r\n",data.f, scaled_val);
         	Xil_Out32(XPAR_M_AXI_BASEADDR + DAC_DDS_FREQ_REG + chan*CHBASEADDR, scaled_val);
          	break;
 
          case DAC_DDS_ENB_MSG:
          	Xil_Out32(XPAR_M_AXI_BASEADDR + DAC_DDS_ENB_REG + chan*CHBASEADDR, data.u);
          	xil_printf("DAC DDS Enable = %d\r\n",data.u);
+         	break;
+
+         case DAC_DDS_AMPL_MSG:
+         	scaled_val = data.f*CONVVOLTSTODACBITS / scalefactors[chan-1].dac_dccts;
+ 	        printf("Setting DDS DAC CH%d Amplitude:   Value=%f   Bits=%d\r\n", (int)chan, data.f, (int)scaled_val);
+ 	        Xil_Out32(XPAR_M_AXI_BASEADDR + DAC_DDS_AMPL_REG + chan*CHBASEADDR, scaled_val);
+         	break;
+
+         case DAC_DDS_OFF_MSG:
+         	scaled_val = data.f*CONVVOLTSTODACBITS / scalefactors[chan-1].dac_dccts;
+ 	        printf("Setting DDS DAC CH%d Offset:   Value=%f   Bits=%d\r\n", (int)chan, data.f, (int)scaled_val);
+ 	        Xil_Out32(XPAR_M_AXI_BASEADDR + DAC_DDS_OFF_REG + chan*CHBASEADDR, scaled_val);
          	break;
 
 

@@ -133,14 +133,7 @@ end process;
 
 
 
-process(clk)
-begin
-  if rising_edge(clk) then
-    if tenkhz_trig = '1' then
-       dds_sine <= resize(signed(dds_out(31 downto 16)), 20) sll 2;
-    end if;
-  end if;
-end process;
+
 
 
 
@@ -148,17 +141,37 @@ end process;
 dac_setpt_rawordds <= dac_setpt_raw when dac_cntrl.dds_enb = '0' else dds_sine; 
 
 
+--process(clk)
+--begin
+--  if rising_edge(clk) then
+--    if tenkhz_trig = '1' then
+--       dds_sine <= resize(signed(dds_out(31 downto 16)), 20) sll 2;
+--    end if;
+--  end if;
+--end process;
 
-ddsmode: dds_dac 
+--ddsmode: dds_dac 
+--  port map (
+--    aclk => clk,
+--    s_axis_config_tvalid => '1', 
+--    s_axis_config_tdata => dac_cntrl.dds_freq, 
+--    m_axis_data_tvalid => open, 
+--    m_axis_data_tdata => dds_out, 
+--    m_axis_phase_tvalid => open, 
+--    m_axis_phase_tdata => open
+--  );
+
+
+dds : entity work.dds_dac_control
   port map (
-    aclk => clk,
-    s_axis_config_tvalid => '1', 
-    s_axis_config_tdata => dac_cntrl.dds_freq, 
-    m_axis_data_tvalid => open, 
-    m_axis_data_tdata => dds_out, 
-    m_axis_phase_tvalid => open, 
-    m_axis_phase_tdata => open
+    clk       => clk,
+    dds_freq  => dac_cntrl.dds_freq,
+    amplitude => unsigned(dac_cntrl.dds_amplitude),
+    dc_offset => signed(dac_cntrl.dds_offset),
+    dac_out   => dds_sine
   );
+
+
 
 
 

@@ -308,6 +308,8 @@ type t_dac_cntrl_onech is record
   --mode  0=smooth ramp, 1=ramp table, 2=FOFB, 3=Jump Mode
   mode                : std_logic_vector(1 downto 0); 
   dds_freq            : std_logic_vector(31 downto 0);
+  dds_amplitude       : std_logic_vector(19 downto 0);
+  dds_offset          : std_logic_vector(19 downto 0);
   dds_enb             : std_logic;
 end record; 
 
